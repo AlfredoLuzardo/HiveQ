@@ -1,0 +1,87 @@
+@model IEnumerable<dynamic>
+
+@{
+    ViewData["Title"] = "Search Queues";
+}
+
+<h1>Search for Queues</h1>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <form method="get" asp-controller="Queue" asp-action="Search">
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" name="searchQuery" placeholder="Search for a company or queue..." aria-label="Search" />
+                <button class="btn btn-primary" type="submit">Search</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <h3>Search Results</h3>
+        <p class="text-muted">Enter a company name to search</p>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Sample Search Results - Will be replaced with actual data -->
+    <div class="col-md-12">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Company Name</th>
+                    <th>Category</th>
+                    <th>Queue Name</th>
+                    <th>People Waiting</th>
+                    <th>Est. Wait Time</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Joe's Pizza</td>
+                    <td>Restaurant</td>
+                    <td>Main Dining</td>
+                    <td>12</td>
+                    <td>45 min</td>
+                    <td><span class="badge bg-success">Open</span></td>
+                    <td>
+                        <a href="#" class="btn btn-sm btn-primary">View Details</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>City Clinic</td>
+                    <td>Healthcare</td>
+                    <td>Walk-in Queue</td>
+                    <td>8</td>
+                    <td>40 min</td>
+                    <td><span class="badge bg-success">Open</span></td>
+                    <td>
+                        <a href="#" class="btn btn-sm btn-primary">View Details</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Brew & Bean Café</td>
+                    <td>Café</td>
+                    <td>Morning Rush</td>
+                    <td>5</td>
+                    <td>15 min</td>
+                    <td><span class="badge bg-success">Open</span></td>
+                    <td>
+                        <a href="#" class="btn btn-sm btn-primary">View Details</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="row mt-3">
+    <div class="col-md-12">
+        <div class="alert alert-secondary">
+            <strong>Tip:</strong> You can also join queues by scanning the QR code displayed at the business location!
+        </div>
+    </div>
+</div>

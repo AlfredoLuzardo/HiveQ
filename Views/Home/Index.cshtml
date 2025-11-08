@@ -1,8 +1,79 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@model IEnumerable<dynamic>
+
+@{
+    ViewData["Title"] = "Home - Browse Popular Queues";
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <h1 class="display-4">Welcome to QueueSystem</h1>
+    <p class="lead">Browse popular queues and join remotely to save time!</p>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <h2>Popular Queues</h2>
+        <p class="text-muted">Most active queues right now</p>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Sample Queue Cards - Will be replaced with actual data -->
+    <div class="col-md-4 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Joe's Pizza</h5>
+                <p class="card-text">
+                    <strong>Category:</strong> Restaurant<br />
+                    <strong>Current Wait:</strong> 12 people<br />
+                    <strong>Est. Time:</strong> 45 minutes<br />
+                    <strong>Status:</strong> <span class="badge bg-success">Open</span>
+                </p>
+                <a href="#" class="btn btn-primary">View Queue</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">City Clinic</h5>
+                <p class="card-text">
+                    <strong>Category:</strong> Healthcare<br />
+                    <strong>Current Wait:</strong> 8 people<br />
+                    <strong>Est. Time:</strong> 40 minutes<br />
+                    <strong>Status:</strong> <span class="badge bg-success">Open</span>
+                </p>
+                <a href="#" class="btn btn-primary">View Queue</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Brew & Bean Café</h5>
+                <p class="card-text">
+                    <strong>Category:</strong> Café<br />
+                    <strong>Current Wait:</strong> 5 people<br />
+                    <strong>Est. Time:</strong> 15 minutes<br />
+                    <strong>Status:</strong> <span class="badge bg-success">Open</span>
+                </p>
+                <a href="#" class="btn btn-primary">View Queue</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="alert alert-info">
+            <h5>How It Works:</h5>
+            <ol>
+                <li>Browse or search for a business</li>
+                <li>Join their queue by scanning the QR code or clicking "Join Queue"</li>
+                <li>Walk around freely while you wait</li>
+                <li>Get notified when it's your turn!</li>
+            </ol>
+        </div>
+    </div>
 </div>

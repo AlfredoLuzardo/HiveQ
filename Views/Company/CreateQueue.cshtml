@@ -1,0 +1,126 @@
+@model dynamic
+
+@{
+    ViewData["Title"] = "Create New Queue";
+}
+
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <h1>Create New Queue</h1>
+        <p class="lead">Set up a new queue for your customers</p>
+
+        <div class="card mt-4">
+            <div class="card-body">
+                <form method="post" asp-controller="Company" asp-action="CreateQueue">
+                    <h4>Queue Information</h4>
+                    <hr />
+
+                    <div class="mb-3">
+                        <label for="queueName" class="form-label">Queue Name *</label>
+                        <input type="text" class="form-control" id="queueName" name="queueName" placeholder="e.g., Main Dining, Takeout Line" required />
+                        <div class="form-text">Give your queue a descriptive name</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="3" placeholder="Brief description of this queue"></textarea>
+                    </div>
+
+                    <h4 class="mt-4">Queue Settings</h4>
+                    <hr />
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="maxCapacity" class="form-label">Maximum Capacity</label>
+                            <input type="number" class="form-control" id="maxCapacity" name="maxCapacity" placeholder="e.g., 20" />
+                            <div class="form-text">Max number of people allowed in queue (optional)</div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="estimatedTime" class="form-label">Estimated Time Per Person (minutes) *</label>
+                            <input type="number" class="form-control" id="estimatedTime" name="estimatedTime" value="5" required />
+                            <div class="form-text">Average time to serve one customer</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Initial Status</label>
+                        <select class="form-select" id="status" name="status">
+                            <option value="Open" selected>Open - Accept customers immediately</option>
+                            <option value="Paused">Paused - Create but don't accept customers yet</option>
+                        </select>
+                    </div>
+
+                    <h4 class="mt-4">Notifications</h4>
+                    <hr />
+
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="notifyOnJoin" name="notifyOnJoin" checked />
+                        <label class="form-check-label" for="notifyOnJoin">
+                            Notify me when someone joins this queue
+                        </label>
+                    </div>
+
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="notifyOnLeave" name="notifyOnLeave" />
+                        <label class="form-check-label" for="notifyOnLeave">
+                            Notify me when someone leaves this queue
+                        </label>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="autoRemind" name="autoRemind" checked />
+                        <label class="form-check-label" for="autoRemind">
+                            Automatically remind customers when they're in top 3
+                        </label>
+                    </div>
+
+                    <h4 class="mt-4">Advanced Options</h4>
+                    <hr />
+
+                    <div class="mb-3">
+                        <label for="category" class="form-label">Category</label>
+                        <select class="form-select" id="category" name="category">
+                            <option value="">Select a category</option>
+                            <option value="Restaurant">Restaurant</option>
+                            <option value="Healthcare">Healthcare</option>
+                            <option value="Retail">Retail</option>
+                            <option value="Services">Services</option>
+                            <option value="Entertainment">Entertainment</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="requirePhone" name="requirePhone" />
+                        <label class="form-check-label" for="requirePhone">
+                            Require phone number from customers
+                        </label>
+                    </div>
+
+                    <div class="form-check mb-4">
+                        <input class="form-check-input" type="checkbox" id="allowAnonymous" name="allowAnonymous" checked />
+                        <label class="form-check-label" for="allowAnonymous">
+                            Allow customers to join without account
+                        </label>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">Create Queue</button>
+                        <a asp-controller="Company" asp-action="Dashboard" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="alert alert-info mt-4">
+            <h5>What happens next?</h5>
+            <ul>
+                <li>Your queue will be created and assigned a unique QR code</li>
+                <li>You can download and print the QR code to display at your location</li>
+                <li>Customers can scan the QR code or find your queue online to join</li>
+                <li>You'll manage the queue from your dashboard</li>
+            </ul>
+        </div>
+    </div>
+</div>
