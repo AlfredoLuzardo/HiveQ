@@ -1,0 +1,80 @@
+@model dynamic
+
+@{
+    ViewData["Title"] = "Create New Queue";
+}
+
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <h1>Create New Queue</h1>
+        <p class="lead">Set up a new queue for your customers</p>
+
+        <div class="card mt-4">
+            <div class="card-body">
+                <form method="post" asp-controller="CreateQueue" asp-action="Index">
+                    <h4>Queue Information</h4>
+                    <hr />
+
+                    <div class="mb-3">
+                        <label for="queueName" class="form-label">Queue Name *</label>
+                        <input type="text" class="form-control" id="queueName" name="queueName" placeholder="e.g., Main Dining, Takeout Line" required />
+                        <div class="form-text">Give your queue a descriptive name</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="3" placeholder="Brief description of this queue"></textarea>
+                    </div>
+
+                    <h4 class="mt-4">Queue Settings</h4>
+                    <hr />
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="maxCapacity" class="form-label">Maximum Capacity</label>
+                            <input type="number" class="form-control" id="maxCapacity" name="maxCapacity" placeholder="e.g., 20" />
+                            <div class="form-text">Max number of people allowed in queue (optional)</div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="estimatedTime" class="form-label">Estimated Time Per Person (minutes) *</label>
+                            <input type="number" class="form-control" id="estimatedTime" name="estimatedTime" value="5" required />
+                            <div class="form-text">Average time to serve one customer</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Initial Status</label>
+                        <select class="form-select" id="status" name="status">
+                            <option value="Open" selected>Open - Accept customers immediately</option>
+                            <option value="Paused">Paused - Create but don't accept customers yet</option>
+                        </select>
+                    </div>
+
+                    <h4 class="mt-4">Notification Settings</h4>
+                    <hr />
+
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="emailNotifications" name="emailNotifications" checked />
+                        <label class="form-check-label" for="emailNotifications">
+                            Send email notifications to customers
+                        </label>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="smsNotifications" name="smsNotifications" />
+                        <label class="form-check-label" for="smsNotifications">
+                            Send SMS notifications (requires SMS credits)
+                        </label>
+                    </div>
+
+                    <hr />
+                    <div class="d-flex justify-content-between">
+                        <a asp-controller="ManageQueues" asp-action="Index" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Create Queue</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

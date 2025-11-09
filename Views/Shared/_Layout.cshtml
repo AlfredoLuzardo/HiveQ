@@ -19,27 +19,20 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Queues</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Queue" asp-action="Search">Search Queues</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="CreateQueue" asp-action="Index">Create Queue</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Queue" asp-action="MyQueues">My Queues</a>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-dark" href="#" id="companyDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Company
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="companyDropdown">
-                                <li><a class="dropdown-item" asp-area="" asp-controller="Company" asp-action="Dashboard">Dashboard</a></li>
-                                <li><a class="dropdown-item" asp-area="" asp-controller="Company" asp-action="CreateQueue">Create Queue</a></li>
-                                <li><a class="dropdown-item" asp-area="" asp-controller="Company" asp-action="Register">Register Company</a></li>
-                            </ul>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="ManageQueues" asp-action="Index">Manage Queues</a>
                         </li>
                     </ul>
                     <ul class="navbar-nav">
                         <!-- TODO: Replace with actual authentication check -->
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Profile" asp-action="Index">Profile</a>
+                        </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Login">Login</a>
                         </li>

@@ -290,3 +290,4 @@ C:\Users\Kyle\Documents\Coding Projects\HiveQ\obj\Debug\net9.0\refint\HiveQ.dll
 C:\Users\Kyle\Documents\Coding Projects\HiveQ\obj\Debug\net9.0\HiveQ.pdb
 C:\Users\Kyle\Documents\Coding Projects\HiveQ\obj\Debug\net9.0\HiveQ.genruntimeconfig.cache
 C:\Users\Kyle\Documents\Coding Projects\HiveQ\obj\Debug\net9.0\ref\HiveQ.dll
+C:\Users\luzar\Documents\BCIT\HiveQ\HiveQ\obj\Debug\net9.0\HiveQ.sourcelink.json

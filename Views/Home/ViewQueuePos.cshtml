@@ -1,0 +1,82 @@
+@model dynamic
+
+@{
+    ViewData["Title"] = "Your Queue Position";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Queue Position</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <h1>Joe's Pizza - Main Dining</h1>
+        <p class="lead">You're in line! Track your position below.</p>
+
+        <div class="card mt-4">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">Your Position</h3>
+            </div>
+            <div class="card-body text-center">
+                <div class="display-1 text-primary">#8</div>
+                <p class="lead">in the queue</p>
+                
+                <div class="row mt-4">
+                    <div class="col-md-4">
+                        <h5>People Ahead</h5>
+                        <p class="display-6">7</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h5>Total in Queue</h5>
+                        <p class="display-6">12</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h5>Est. Wait Time</h5>
+                        <p class="display-6">35 min</p>
+                    </div>
+                </div>
+
+                <div class="progress mt-4" style="height: 30px;">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                         role="progressbar" 
+                         style="width: 33%;" 
+                         aria-valuenow="33" 
+                         aria-valuemin="0" 
+                         aria-valuemax="100">
+                        33% Complete
+                    </div>
+                </div>
+
+                <div class="alert alert-info mt-4">
+                    <strong>Tip:</strong> We'll notify you when you're 3 positions away!
+                </div>
+
+                <form method="post" asp-controller="Home" asp-action="LeaveQueue" asp-route-id="1" class="mt-3">
+                    <button type="submit" class="btn btn-danger btn-lg">Leave Queue</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>Company Information</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Company:</strong> Joe's Pizza</p>
+                <p><strong>Address:</strong> 123 Main Street</p>
+                <p><strong>Phone:</strong> (555) 123-4567</p>
+                <hr />
+                <p class="text-muted small">Queue joined: Today at 2:30 PM</p>
+            </div>
+        </div>
+    </div>
+</div>

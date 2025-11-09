@@ -36,7 +36,7 @@
                 <h5>Join This Queue</h5>
                 <p>Enter your contact information to join the queue remotely. You'll receive notifications about your position.</p>
                 
-                <form method="post" asp-controller="Queue" asp-action="Join">
+                <form method="post">
                     <div class="mb-3">
                         <label for="name" class="form-label">Name</label>
                         <input type="text" class="form-control" id="name" name="name" required />
@@ -50,27 +50,16 @@
                         <input type="tel" class="form-control" id="phone" name="phone" />
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Notification Preference</label>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="notificationPref" id="emailOnly" value="Email" checked />
-                            <label class="form-check-label" for="emailOnly">
-                                Email Only
-                            </label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="notificationPref" id="smsOnly" value="SMS" />
-                            <label class="form-check-label" for="smsOnly">
-                                SMS Only
-                            </label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="notificationPref" id="both" value="Both" />
-                            <label class="form-check-label" for="both">
-                                Both Email and SMS
-                            </label>
-                        </div>
+                        <label for="partySize" class="form-label">Party Size</label>
+                        <select class="form-select" id="partySize" name="partySize">
+                            <option value="1">1 Person</option>
+                            <option value="2" selected>2 People</option>
+                            <option value="3">3 People</option>
+                            <option value="4">4 People</option>
+                            <option value="5">5+ People</option>
+                        </select>
                     </div>
-                    <button type="submit" class="btn btn-primary btn-lg">Join Queue</button>
+                    <button type="submit" class="btn btn-primary btn-lg w-100">Join Queue</button>
                 </form>
             </div>
         </div>
@@ -79,25 +68,34 @@
     <div class="col-md-4">
         <div class="card">
             <div class="card-header">
-                <h5>Scan QR Code</h5>
+                <h5>Current Wait Times</h5>
             </div>
-            <div class="card-body text-center">
-                <div style="background-color: #f0f0f0; padding: 40px; margin: 20px 0;">
-                    <p class="text-muted">[QR Code Placeholder]</p>
-                    <p class="text-muted">Scan with your phone</p>
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Current:</span>
+                    <strong>45 min</strong>
                 </div>
-                <p class="small">Scan this QR code with your phone to join the queue instantly!</p>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Average Today:</span>
+                    <strong>38 min</strong>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>Peak Time:</span>
+                    <strong>6:00 PM</strong>
+                </div>
             </div>
         </div>
 
-        <div class="alert alert-info mt-3">
-            <h6>What happens next?</h6>
-            <ul class="small">
-                <li>You'll receive a confirmation</li>
-                <li>We'll notify you as the queue moves</li>
-                <li>You'll get an alert when you're next</li>
-                <li>You can leave the queue anytime</li>
-            </ul>
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5>About This Location</h5>
+            </div>
+            <div class="card-body">
+                <p class="small">Serving delicious pizza since 1995. Join our queue to skip the wait!</p>
+                <hr />
+                <p class="small text-muted mb-1"><strong>Hours:</strong></p>
+                <p class="small text-muted">Mon-Sun: 11:00 AM - 10:00 PM</p>
+            </div>
         </div>
     </div>
 </div>

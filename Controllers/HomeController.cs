@@ -6,14 +6,34 @@ namespace HiveQ.Controllers
 {
     public class HomeController : Controller
     {
+        // GET: Home - Shows list of queues
         public IActionResult Index()
         {
+            // TODO: Load list of queues from database
             return View();
         }
 
-        public IActionResult Privacy()
+        // GET: Home/ViewQueuePos/5
+        public IActionResult ViewQueuePos(int id)
         {
+            // TODO: Load queue position from database
             return View();
+        }
+
+        // GET: Home/ViewQueue/5
+        public IActionResult ViewQueue(int id)
+        {
+            // TODO: Load queue details from database
+            return View();
+        }
+
+        // POST: Home/LeaveQueue/5
+        [HttpPost]
+        public IActionResult LeaveQueue(int id)
+        {
+            // TODO: Implement leave queue logic
+            TempData["Message"] = "You have left the queue";
+            return RedirectToAction("Index");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

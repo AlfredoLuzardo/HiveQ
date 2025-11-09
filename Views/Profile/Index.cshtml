@@ -1,0 +1,95 @@
+@model dynamic
+
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <h1>My Profile</h1>
+        <p class="lead">Manage your account settings</p>
+
+        <!-- Profile Picture Section -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5>Profile Picture</h5>
+            </div>
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <img src="https://via.placeholder.com/150" alt="Profile Picture" class="rounded-circle" style="width: 150px; height: 150px; object-fit: cover;" />
+                </div>
+                <form method="post" asp-controller="Profile" asp-action="SubmitProfilePic" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <input type="file" class="form-control" id="profilePicture" name="profilePicture" accept="image/*" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Upload New Picture</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Account Information -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5>Account Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label"><strong>Name:</strong></label>
+                    <p>John Doe</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label"><strong>Email:</strong></label>
+                    <p>john.doe@example.com</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label"><strong>Member Since:</strong></label>
+                    <p>January 15, 2024</p>
+                </div>
+                <button type="button" class="btn btn-outline-primary">Edit Profile</button>
+            </div>
+        </div>
+
+        <!-- Notification Preferences -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5>Notification Preferences</h5>
+            </div>
+            <div class="card-body">
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="emailNotif" checked />
+                    <label class="form-check-label" for="emailNotif">
+                        Email notifications
+                    </label>
+                </div>
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="smsNotif" />
+                    <label class="form-check-label" for="smsNotif">
+                        SMS notifications
+                    </label>
+                </div>
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="pushNotif" checked />
+                    <label class="form-check-label" for="pushNotif">
+                        Push notifications
+                    </label>
+                </div>
+                <button type="button" class="btn btn-outline-primary">Save Preferences</button>
+            </div>
+        </div>
+
+        <!-- Danger Zone -->
+        <div class="card mt-4 border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5>Danger Zone</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Once you delete your account, there is no going back. Please be certain.</p>
+                <form method="post" asp-controller="Profile" asp-action="DeleteAccount">
+                    <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete your account? This action cannot be undone.')">
+                        Delete My Account
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
