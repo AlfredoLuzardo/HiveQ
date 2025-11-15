@@ -1,117 +1,89 @@
 is_global = true
 build_property.TargetFramework = net9.0
+build_property.TargetFramework = net9.0
+build_property.TargetPlatformMinVersion = 
 build_property.TargetPlatformMinVersion = 
 build_property.UsingMicrosoftNETSdkWeb = true
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
 build_property.ProjectTypeGuids = 
 build_property.InvariantGlobalization = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
 build_property.PlatformNeutralAssembly = 
 build_property.EnforceExtendedAnalyzerRules = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = HiveQ
 build_property.RootNamespace = HiveQ
-build_property.ProjectDir = C:\Users\luzar\Documents\BCIT\HiveQ\HiveQ\
+build_property.ProjectDir = C:\Users\Kyle\Documents\Coding Projects\HiveQ\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.RazorLangVersion = 9.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
-build_property.MSBuildProjectDirectory = C:\Users\luzar\Documents\BCIT\HiveQ\HiveQ
+build_property.MSBuildProjectDirectory = C:\Users\Kyle\Documents\Coding Projects\HiveQ
 build_property._RazorSourceGeneratorDebug = 
 build_property.EffectiveAnalysisLevelStyle = 9.0
 build_property.EnableCodeStyleSeverity = 
 
-[C:/Users/luzar/Documents/BCIT/HiveQ/HiveQ/Views/Account/Login.cshtml]
+[C:/Users/Kyle/Documents/Coding Projects/HiveQ/Views/Account/Login.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxMb2dpbi5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/luzar/Documents/BCIT/HiveQ/HiveQ/Views/Account/Register.cshtml]
+[C:/Users/Kyle/Documents/Coding Projects/HiveQ/Views/Account/Register.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxSZWdpc3Rlci5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/luzar/Documents/BCIT/HiveQ/HiveQ/Views/Company/CreateQueue.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ29tcGFueVxDcmVhdGVRdWV1ZS5jc2h0bWw=
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/luzar/Documents/BCIT/HiveQ/HiveQ/Views/Company/Dashboard.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ29tcGFueVxEYXNoYm9hcmQuY3NodG1s
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/luzar/Documents/BCIT/HiveQ/HiveQ/Views/Company/ManageQueue.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ29tcGFueVxNYW5hZ2VRdWV1ZS5jc2h0bWw=
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/luzar/Documents/BCIT/HiveQ/HiveQ/Views/Company/Register.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ29tcGFueVxSZWdpc3Rlci5jc2h0bWw=
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/luzar/Documents/BCIT/HiveQ/HiveQ/Views/CreateQueue/CreateQueueConfirmation.cshtml]
+[C:/Users/Kyle/Documents/Coding Projects/HiveQ/Views/CreateQueue/CreateQueueConfirmation.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ3JlYXRlUXVldWVcQ3JlYXRlUXVldWVDb25maXJtYXRpb24uY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/luzar/Documents/BCIT/HiveQ/HiveQ/Views/CreateQueue/Index.cshtml]
+[C:/Users/Kyle/Documents/Coding Projects/HiveQ/Views/CreateQueue/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ3JlYXRlUXVldWVcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/luzar/Documents/BCIT/HiveQ/HiveQ/Views/Home/Index.cshtml]
+[C:/Users/Kyle/Documents/Coding Projects/HiveQ/Views/Home/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/luzar/Documents/BCIT/HiveQ/HiveQ/Views/Home/Privacy.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/luzar/Documents/BCIT/HiveQ/HiveQ/Views/Home/ViewQueue.cshtml]
+[C:/Users/Kyle/Documents/Coding Projects/HiveQ/Views/Home/ViewQueue.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxWaWV3UXVldWUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/luzar/Documents/BCIT/HiveQ/HiveQ/Views/Home/ViewQueuePos.cshtml]
+[C:/Users/Kyle/Documents/Coding Projects/HiveQ/Views/Home/ViewQueuePos.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxWaWV3UXVldWVQb3MuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/luzar/Documents/BCIT/HiveQ/HiveQ/Views/ManageQueues/EditQueue.cshtml]
+[C:/Users/Kyle/Documents/Coding Projects/HiveQ/Views/ManageQueues/EditQueue.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWFuYWdlUXVldWVzXEVkaXRRdWV1ZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/luzar/Documents/BCIT/HiveQ/HiveQ/Views/ManageQueues/Index.cshtml]
+[C:/Users/Kyle/Documents/Coding Projects/HiveQ/Views/ManageQueues/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWFuYWdlUXVldWVzXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/luzar/Documents/BCIT/HiveQ/HiveQ/Views/Profile/Index.cshtml]
+[C:/Users/Kyle/Documents/Coding Projects/HiveQ/Views/Profile/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZmlsZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/luzar/Documents/BCIT/HiveQ/HiveQ/Views/Queue/Details.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUXVldWVcRGV0YWlscy5jc2h0bWw=
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/luzar/Documents/BCIT/HiveQ/HiveQ/Views/Queue/MyQueues.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUXVldWVcTXlRdWV1ZXMuY3NodG1s
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/luzar/Documents/BCIT/HiveQ/HiveQ/Views/Queue/Position.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUXVldWVcUG9zaXRpb24uY3NodG1s
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/luzar/Documents/BCIT/HiveQ/HiveQ/Views/Queue/Search.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUXVldWVcU2VhcmNoLmNzaHRtbA==
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/luzar/Documents/BCIT/HiveQ/HiveQ/Views/Shared/Error.cshtml]
+[C:/Users/Kyle/Documents/Coding Projects/HiveQ/Views/Shared/Error.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXEVycm9yLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/luzar/Documents/BCIT/HiveQ/HiveQ/Views/Shared/_ValidationScriptsPartial.cshtml]
+[C:/Users/Kyle/Documents/Coding Projects/HiveQ/Views/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/luzar/Documents/BCIT/HiveQ/HiveQ/Views/_ViewImports.cshtml]
+[C:/Users/Kyle/Documents/Coding Projects/HiveQ/Views/_ViewImports.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/luzar/Documents/BCIT/HiveQ/HiveQ/Views/_ViewStart.cshtml]
+[C:/Users/Kyle/Documents/Coding Projects/HiveQ/Views/_ViewStart.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdTdGFydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/luzar/Documents/BCIT/HiveQ/HiveQ/Views/Shared/_Layout.cshtml]
+[C:/Users/Kyle/Documents/Coding Projects/HiveQ/Views/Shared/_Layout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = b-cr0c06wu6f
