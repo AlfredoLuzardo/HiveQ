@@ -1,0 +1,131 @@
+@{
+    ViewData["Title"] = "Your Queue Position";
+    var queueEntry = ViewBag.QueueEntry as HiveQ.Models.QueueEntry;
+}
+
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <div class="text-center mb-4">
+            @if (TempData["Message"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @TempData["Message"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            <div class="mb-3">
+                <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" fill="currentColor" class="bi bi-check-circle-fill text-success" viewBox="0 0 16 16">
+                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                </svg>
+            </div>
+
+            <h1>You're in the Queue!</h1>
+            <h3 class="text-primary">@queueEntry?.Queue.QueueName</h3>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body text-center">
+                <h6 class="text-muted mb-2">Your Position</h6>
+                <h1 class="display-1 text-primary mb-0">@ViewBag.CurrentPosition</h1>
+                
+                @if (ViewBag.PeopleAhead > 0)
+                {
+                    <p class="text-muted mt-3">
+                        <strong>@ViewBag.PeopleAhead</strong> people ahead of you
+                    </p>
+                }
+                else
+                {
+                    <p class="text-success mt-3">
+                        <strong>You're next!</strong>
+                    </p>
+                }
+
+                <hr />
+
+                <div class="row">
+                    <div class="col-6">
+                        <small class="text-muted d-block">Estimated Wait</small>
+                        <h3 class="text-primary">~@ViewBag.EstimatedWait min</h3>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted d-block">Status</small>
+                        <h3>
+                            @if (queueEntry?.Status == "Waiting")
+                            {
+                                <span class="badge bg-info">Waiting</span>
+                            }
+                            else if (queueEntry?.Status == "Notified")
+                            {
+                                <span class="badge bg-warning">Your Turn!</span>
+                            }
+                            else if (queueEntry?.Status == "Served")
+                            {
+                                <span class="badge bg-success">Served</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">@queueEntry?.Status</span>
+                            }
+                        </h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-body">
+                <h6 class="card-title">Your Information</h6>
+                <p class="mb-1"><strong>Name:</strong> @queueEntry?.User.FirstName @queueEntry?.User.LastName</p>
+                @if (!string.IsNullOrEmpty(queueEntry?.User.Email) && !queueEntry.User.Email.Contains("@hiveq.local"))
+                {
+                    <p class="mb-1"><strong>Email:</strong> @queueEntry.User.Email</p>
+                }
+                @if (!string.IsNullOrEmpty(queueEntry?.User.PhoneNumber))
+                {
+                    <p class="mb-1"><strong>Phone:</strong> @queueEntry.User.PhoneNumber</p>
+                }
+                <p class="mb-0"><strong>Notifications:</strong> @queueEntry?.NotificationPreference</p>
+            </div>
+        </div>
+
+        <div class="alert alert-info">
+            <h6 class="alert-heading">Important Information</h6>
+            <ul class="mb-0">
+                <li>Keep this page open or bookmark it to check your position</li>
+                <li>You'll be notified when it's almost your turn (if enabled)</li>
+                <li>Please arrive promptly when notified</li>
+            </ul>
+        </div>
+
+        <div class="d-grid gap-2">
+            <button type="button" class="btn btn-primary" onclick="location.reload()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+                    <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+                </svg>
+                Refresh Position
+            </button>
+            
+            <form method="post" asp-controller="JoinQueue" asp-action="Leave" asp-route-queueEntryId="@queueEntry?.QueueEntryId" 
+                  onsubmit="return confirm('Are you sure you want to leave the queue?');">
+                <button type="submit" class="btn btn-outline-danger w-100">Leave Queue</button>
+            </form>
+        </div>
+
+        <div class="text-center mt-3">
+            <small class="text-muted">
+                Queue Entry ID: @queueEntry?.QueueEntryId | 
+                Joined at @queueEntry?.JoinedAt.ToLocalTime().ToString("h:mm tt")
+            </small>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Auto-refresh every 30 seconds to update position
+    setTimeout(function() {
+        location.reload();
+    }, 30000);
+</script>

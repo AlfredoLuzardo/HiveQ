@@ -1,54 +1,118 @@
-@model IEnumerable<dynamic>
+@model IEnumerable<HiveQ.Models.Queue>
 
 @{
-    ViewData["Title"] = "Home - Browse Popular Queues";
+    ViewData["Title"] = "Home - Browse Queues";
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome to QueueSystem</h1>
-    <p class="lead">Browse popular queues and join remotely to save time!</p>
+    <h1 class="display-4">Welcome to HiveQ</h1>
+    <p class="lead">Browse available queues and join remotely to save time!</p>
 </div>
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Message"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
 
 <div class="row mt-4">
     <div class="col-md-12">
-        <h2>Popular Queues</h2>
-        <p class="text-muted">Most active queues right now</p>
+        <h2>Available Queues</h2>
+        <p class="text-muted">Currently active queues</p>
     </div>
 </div>
 
 <div class="row">
-    <!-- Sample Queue Cards - Will be replaced with actual data -->
-    <div class="col-md-4 mb-3">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Joe's Pizza</h5>
-                <p class="card-text">
-                    <strong>Category:</strong> Restaurant<br />
-                    <strong>Current Wait:</strong> 12 people<br />
-                    <strong>Est. Time:</strong> 45 minutes<br />
-                    <strong>Status:</strong> <span class="badge bg-success">Open</span>
-                </p>
-                <a href="#" class="btn btn-primary">View Queue</a>
+    @if (Model != null && Model.Any())
+    {
+        @foreach (var queue in Model)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="card-title">@queue.QueueName</h5>
+                            @if (queue.Status == "Open")
+                            {
+                                <span class="badge bg-success">Open</span>
+                            }
+                            else if (queue.Status == "Paused")
+                            {
+                                <span class="badge bg-warning">Paused</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">@queue.Status</span>
+                            }
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(queue.Description))
+                        {
+                            <p class="card-text text-muted small">@queue.Description</p>
+                        }
+
+                        <hr />
+
+                        <div class="mb-3">
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <h4 class="text-primary mb-0">@queue.CurrentQueueSize</h4>
+                                    <small class="text-muted">In Queue</small>
+                                </div>
+                                <div class="col-6">
+                                    <h4 class="text-primary mb-0">~@(queue.CurrentQueueSize * queue.EstimatedWaitTimePerPerson)</h4>
+                                    <small class="text-muted">Minutes</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid">
+                            @if (queue.Status == "Open" && queue.CurrentQueueSize < queue.MaxCapacity)
+                            {
+                                <a asp-controller="JoinQueue" asp-action="Index" asp-route-queueId="@queue.QueueId" class="btn btn-primary">
+                                    Join Queue
+                                </a>
+                            }
+                            else if (queue.CurrentQueueSize >= queue.MaxCapacity)
+                            {
+                                <button class="btn btn-secondary" disabled>Queue Full</button>
+                            }
+                            else
+                            {
+                                <button class="btn btn-secondary" disabled>Not Accepting</button>
+                            }
+                        </div>
+                    </div>
+                    <div class="card-footer text-muted small">
+                        <div class="d-flex justify-content-between">
+                            <span>Max: @queue.MaxCapacity people</span>
+                            <span>~@queue.EstimatedWaitTimePerPerson min/person</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="col-12">
+            <div class="alert alert-info text-center">
+                <h4>No Queues Available</h4>
+                <p class="mb-0">There are currently no active queues. Check back later!</p>
             </div>
         </div>
-    </div>
-
-    <div class="col-md-4 mb-3">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">City Clinic</h5>
-                <p class="card-text">
-                    <strong>Category:</strong> Healthcare<br />
-                    <strong>Current Wait:</strong> 8 people<br />
-                    <strong>Est. Time:</strong> 40 minutes<br />
-                    <strong>Status:</strong> <span class="badge bg-success">Open</span>
-                </p>
-                <a href="#" class="btn btn-primary">View Queue</a>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-4 mb-3">
+    }
+</div>    <div class="col-md-4 mb-3">
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title">Brew & Bean Café</h5>

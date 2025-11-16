@@ -1,0 +1,147 @@
+@{
+    ViewData["Title"] = "Join Queue";
+}
+
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <div class="text-center mb-4">
+            <h1>Join Queue</h1>
+            <h3 class="text-primary">@ViewBag.QueueName</h3>
+            @if (!string.IsNullOrEmpty(ViewBag.Description))
+            {
+                <p class="text-muted">@ViewBag.Description</p>
+            }
+        </div>
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @TempData["Error"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h5 class="mb-0">Current Queue Status</h5>
+                    </div>
+                    <span class="badge bg-success">Open</span>
+                </div>
+                <div class="row text-center">
+                    <div class="col-6">
+                        <div class="border-end">
+                            <h2 class="text-primary mb-0">@ViewBag.CurrentSize</h2>
+                            <small class="text-muted">People in Queue</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <h2 class="text-primary mb-0">~@ViewBag.EstimatedWaitTime</h2>
+                        <small class="text-muted">Minutes Wait</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title mb-4">Enter Your Information</h5>
+                
+                <form method="post" asp-controller="JoinQueue" asp-action="Join">
+                    <input type="hidden" name="queueId" value="@ViewBag.QueueId" />
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="firstName" class="form-label">First Name *</label>
+                            <input type="text" class="form-control" id="firstName" name="firstName" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="lastName" class="form-label">Last Name *</label>
+                            <input type="text" class="form-control" id="lastName" name="lastName" required />
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" placeholder="your@email.com" />
+                        <div class="form-text">Optional - For email notifications</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="phoneNumber" class="form-label">Phone Number</label>
+                        <input type="tel" class="form-control" id="phoneNumber" name="phoneNumber" placeholder="(555) 123-4567" />
+                        <div class="form-text">Optional - For SMS notifications</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Notification Preference *</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="notificationPreference" id="noneNotif" value="None" checked />
+                            <label class="form-check-label" for="noneNotif">
+                                No notifications
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="notificationPreference" id="emailNotif" value="Email" />
+                            <label class="form-check-label" for="emailNotif">
+                                Email notifications (requires email)
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="notificationPreference" id="smsNotif" value="SMS" />
+                            <label class="form-check-label" for="smsNotif">
+                                SMS notifications (requires phone number)
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="notificationPreference" id="bothNotif" value="Both" />
+                            <label class="form-check-label" for="bothNotif">
+                                Both email and SMS (requires both)
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <small>
+                            <strong>Note:</strong> By joining this queue, you agree to receive notifications about your queue position.
+                            You can leave the queue at any time.
+                        </small>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">Join Queue</button>
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Auto-enable/disable email and phone fields based on notification preference
+    document.addEventListener('DOMContentLoaded', function() {
+        const notifRadios = document.querySelectorAll('input[name="notificationPreference"]');
+        const emailInput = document.getElementById('email');
+        const phoneInput = document.getElementById('phoneNumber');
+
+        notifRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                const value = this.value;
+                
+                // Clear required attributes first
+                emailInput.removeAttribute('required');
+                phoneInput.removeAttribute('required');
+
+                // Add required based on selection
+                if (value === 'Email' || value === 'Both') {
+                    emailInput.setAttribute('required', '');
+                }
+                if (value === 'SMS' || value === 'Both') {
+                    phoneInput.setAttribute('required', '');
+                }
+            });
+        });
+    });
+</script>

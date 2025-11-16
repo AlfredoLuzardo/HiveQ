@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using HiveQ.Models;
 using System.Diagnostics;
 
@@ -6,11 +7,23 @@ namespace HiveQ.Controllers
 {
     public class HomeController : Controller
     {
-        // GET: Home - Shows list of queues
-        public IActionResult Index()
+        private readonly ApplicationDbContext _context;
+
+        public HomeController(ApplicationDbContext context)
         {
-            // TODO: Load list of queues from database
-            return View();
+            _context = context;
+        }
+
+        // GET: Home - Shows list of queues
+        public async Task<IActionResult> Index()
+        {
+            var queues = await _context.Queues
+                .Where(q => q.IsActive && q.Status != "Closed")
+                .Include(q => q.User)
+                .OrderByDescending(q => q.CreatedAt)
+                .ToListAsync();
+
+            return View(queues);
         }
 
         // GET: Home/ViewQueuePos/5
