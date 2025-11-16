@@ -41,9 +41,22 @@ namespace HiveQ.Controllers
                     return View();
                 }
 
-                // TODO: Get actual logged-in user ID from session/authentication
-                // For now, using a default user ID of 1
-                int userId = 1;
+                // Get actual logged-in user ID from authentication
+                var userEmail = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Email)?.Value;
+                if (string.IsNullOrEmpty(userEmail))
+                {
+                    TempData["Error"] = "User authentication error. Please log in again.";
+                    return RedirectToAction("Login", "Account");
+                }
+
+                var currentUser = _context.Users.FirstOrDefault(u => u.Email == userEmail);
+                if (currentUser == null)
+                {
+                    TempData["Error"] = "User not found. Please log in again.";
+                    return RedirectToAction("Login", "Account");
+                }
+
+                int userId = currentUser.UserId;
 
                 // Generate unique QR code data (using queue name + timestamp)
                 string qrCodeData = $"{queueName}_{DateTime.UtcNow.Ticks}";

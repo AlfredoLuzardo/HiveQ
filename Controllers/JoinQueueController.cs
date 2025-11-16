@@ -55,7 +55,34 @@ namespace HiveQ.Controllers
                     return RedirectToAction("Index", "Home");
                 }
 
-                // Pass queue info to the view
+                // If user is authenticated, auto-join them
+                if (User.Identity?.IsAuthenticated == true)
+                {
+                    var userEmail = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Email)?.Value;
+                    if (!string.IsNullOrEmpty(userEmail))
+                    {
+                        var currentUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
+                        if (currentUser != null)
+                        {
+                            // Check if user is already in this queue
+                            var existingEntry = await _context.QueueEntries
+                                .FirstOrDefaultAsync(qe => qe.QueueId == queue.QueueId && 
+                                                          qe.UserId == currentUser.UserId && 
+                                                          (qe.Status == "Waiting" || qe.Status == "Notified"));
+
+                            if (existingEntry != null)
+                            {
+                                // User already in queue, redirect to position page
+                                return RedirectToAction("ViewPosition", new { queueEntryId = existingEntry.QueueEntryId });
+                            }
+
+                            // Auto-join the authenticated user
+                            return await JoinAuthenticatedUser(queue, currentUser);
+                        }
+                    }
+                }
+
+                // Pass queue info to the view for guest users
                 ViewBag.QueueId = queue.QueueId;
                 ViewBag.QueueName = queue.QueueName;
                 ViewBag.Description = queue.Description;
@@ -73,17 +100,37 @@ namespace HiveQ.Controllers
 
         // POST: JoinQueue/Join
         [HttpPost]
-        public async Task<IActionResult> Join(int queueId, string firstName, string lastName, 
-            string? email, string? phoneNumber, string notificationPreference)
+        public async Task<IActionResult> Join(int queueId, string? firstName, string? lastName, 
+            string? email, string? phoneNumber, string? notificationPreference)
         {
             try
             {
-                // Validate required fields
+                // Check if user is authenticated
+                if (User.Identity?.IsAuthenticated == true)
+                {
+                    var userEmail = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Email)?.Value;
+                    if (!string.IsNullOrEmpty(userEmail))
+                    {
+                        var currentUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
+                        var userQueue = await _context.Queues
+                            .Include(q => q.QueueEntries)
+                            .FirstOrDefaultAsync(q => q.QueueId == queueId && q.IsActive);
+
+                        if (currentUser != null && userQueue != null)
+                        {
+                            return await JoinAuthenticatedUser(userQueue, currentUser);
+                        }
+                    }
+                }
+
+                // Guest user validation
                 if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName))
                 {
                     TempData["Error"] = "First name and last name are required.";
                     return RedirectToAction("Index", new { queueId = queueId });
                 }
+
+                notificationPreference = notificationPreference ?? "None";
 
                 // Validate notification preference
                 if (notificationPreference == "Email" && string.IsNullOrWhiteSpace(email))
@@ -251,6 +298,59 @@ namespace HiveQ.Controllers
             {
                 TempData["Error"] = "An error occurred while leaving the queue.";
                 return RedirectToAction("Index", "Home");
+            }
+        }
+
+        // Helper method to join authenticated users
+        private async Task<IActionResult> JoinAuthenticatedUser(Queue queue, User user)
+        {
+            try
+            {
+                // Check capacity
+                if (queue.CurrentQueueSize >= queue.MaxCapacity)
+                {
+                    TempData["Error"] = "Queue is at full capacity.";
+                    return RedirectToAction("Index", new { queueId = queue.QueueId });
+                }
+
+                // Calculate position number
+                int positionNumber = queue.QueueEntries
+                    .Where(qe => qe.Status == "Waiting" || qe.Status == "Notified")
+                    .DefaultIfEmpty()
+                    .Max(qe => qe?.PositionNumber ?? 0) + 1;
+
+                // Calculate estimated wait time
+                int estimatedWaitTime = (positionNumber - 1) * queue.EstimatedWaitTimePerPerson;
+
+                // Create queue entry
+                var queueEntry = new QueueEntry
+                {
+                    QueueId = queue.QueueId,
+                    UserId = user.UserId,
+                    PositionNumber = positionNumber,
+                    Status = "Waiting",
+                    JoinedAt = DateTime.UtcNow,
+                    EstimatedWaitTime = estimatedWaitTime,
+                    NotificationPreference = !string.IsNullOrEmpty(user.Email) && !user.Email.Contains("@hiveq.local") ? "Email" : "None",
+                    Notes = "Authenticated user"
+                };
+
+                _context.QueueEntries.Add(queueEntry);
+
+                // Update queue statistics
+                queue.CurrentQueueSize++;
+                queue.UpdatedAt = DateTime.UtcNow;
+
+                await _context.SaveChangesAsync();
+
+                // Redirect to position view
+                TempData["Message"] = "Successfully joined the queue!";
+                return RedirectToAction("ViewPosition", new { queueEntryId = queueEntry.QueueEntryId });
+            }
+            catch (Exception)
+            {
+                TempData["Error"] = "An error occurred while joining the queue.";
+                return RedirectToAction("Index", new { queueId = queue.QueueId });
             }
         }
     }
