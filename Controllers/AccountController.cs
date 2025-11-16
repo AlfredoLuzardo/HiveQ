@@ -63,6 +63,8 @@ namespace HiveQ.Controllers
                         var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                         HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
 
+                        ViewData["Email"] = user.Email;
+
                         return RedirectToAction("Index", "Home");
                     }
                     else

@@ -33,7 +33,7 @@
                         @if (User.Identity != null && User.Identity.IsAuthenticated)
                         {
                             <li class="nav-item">
-                                <span class="nav-link text-dark">Hello, @ViewData["Name"]</span>
+                                <span class="nav-link text-dark">Hello, @User.FindFirst("FirstName")?.Value</span>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Profile" asp-action="Index">Profile</a>
