@@ -16,6 +16,14 @@
             <h1 class="display-4">Queue Created Successfully!</h1>
             <p class="lead mt-3">Your queue is now live and ready to accept customers.</p>
 
+            @if (TempData["QueueName"] != null)
+            {
+                <div class="alert alert-info mt-4">
+                    <strong>Queue Name:</strong> @TempData["QueueName"]<br />
+                    <strong>Queue ID:</strong> @TempData["QueueId"]
+                </div>
+            }
+
             <div class="card mt-5">
                 <div class="card-body text-start">
                     <h5 class="card-title">What's Next?</h5>
@@ -44,7 +52,7 @@
 
             <div class="mt-4">
                 <a asp-controller="ManageQueues" asp-action="Index" class="btn btn-primary btn-lg me-2">View My Queues</a>
-                <a asp-controller="CreateQueue" asp-action="Index" class="btn btn-outline-secondary btn-lg">Create Another Queue</a>
+                <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary btn-lg">Return to Home</a>
             </div>
         </div>
     </div>
