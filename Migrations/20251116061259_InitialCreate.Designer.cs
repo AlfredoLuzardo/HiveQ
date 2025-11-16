@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HiveQ.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251116042535_InitialCreate")]
+    [Migration("20251116061259_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />

@@ -134,9 +134,9 @@ namespace HiveQ.Controllers
                         LastName = lastName.Trim(),
                         PhoneNumber = phoneNumber?.Trim(),
                         PasswordHash = "GUEST_USER", // Placeholder - guest users can't log in
-                        IsVerified = false,
-                        CreatedAt = DateTime.UtcNow,
-                        IsActive = true
+                        // IsVerified = false,
+                        // CreatedAt = DateTime.UtcNow,
+                        // IsActive = true
                     };
 
                     _context.Users.Add(user);
