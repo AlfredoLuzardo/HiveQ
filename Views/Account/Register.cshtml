@@ -52,34 +52,12 @@
                         <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required />
                     </div>
 
-                    <h4 class="mt-4">Notification Preferences</h4>
-                    <hr />
-
-                    <div class="form-check mb-2">
-                        <input class="form-check-input" type="checkbox" id="emailNotifications" name="emailNotifications" checked />
-                        <label class="form-check-label" for="emailNotifications">
-                            Email notifications
-                        </label>
-                    </div>
-
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" type="checkbox" id="smsNotifications" name="smsNotifications" />
-                        <label class="form-check-label" for="smsNotifications">
-                            SMS notifications (requires phone number)
-                        </label>
-                    </div>
-
-                    <div class="form-check mb-4">
-                        <input class="form-check-input" type="checkbox" id="agreeTerms" name="agreeTerms" required />
-                        <label class="form-check-label" for="agreeTerms">
-                            I agree to the Terms of Service and Privacy Policy *
-                        </label>
-                    </div>
-
                     <div class="d-grid gap-2">
                         <button type="submit" class="btn btn-primary btn-lg">Create Account</button>
                         <a asp-controller="Account" asp-action="Login" class="btn btn-outline-secondary">Already have an account? Login</a>
                     </div>
+
+                    <div asp-validation-summary="All" class="text-danger mb-3"></div>
                 </form>
             </div>
         </div>
@@ -92,13 +70,6 @@
                 <li>View your queue history</li>
                 <li>Join queues faster next time</li>
             </ul>
-        </div>
-
-        <div class="text-center mt-3">
-            <p class="text-muted">
-                Are you a business? 
-                <a asp-controller="Company" asp-action="Register">Register as a company</a>
-            </p>
         </div>
     </div>
 </div>

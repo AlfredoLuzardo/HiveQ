@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HiveQ.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251116015541_InitialCreate")]
+    [Migration("20251116042535_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -245,21 +245,6 @@ namespace HiveQ.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("CompanyAddress")
-                        .HasMaxLength(500)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("CompanyCategory")
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("CompanyDescription")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("CompanyName")
-                        .HasMaxLength(200)
-                        .HasColumnType("TEXT");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
@@ -276,16 +261,9 @@ namespace HiveQ.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("INTEGER");
 
-                    b.Property<bool>("IsVerified")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("LogoUrl")
-                        .HasMaxLength(500)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("PasswordHash")
@@ -308,15 +286,10 @@ namespace HiveQ.Migrations
                         new
                         {
                             UserId = 1,
-                            CompanyAddress = "123 Main St, City, State 12345",
-                            CompanyCategory = "Food & Beverage",
-                            CompanyDescription = "A cozy coffee shop in the heart of the city",
-                            CompanyName = "Sample Coffee Shop",
                             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Email = "owner@coffeeshop.com",
                             FirstName = "Sarah",
                             IsActive = true,
-                            IsVerified = true,
                             LastName = "Johnson",
                             PasswordHash = "hashed_password_here",
                             PhoneNumber = "5551234567"
@@ -328,7 +301,6 @@ namespace HiveQ.Migrations
                             Email = "customer@example.com",
                             FirstName = "John",
                             IsActive = true,
-                            IsVerified = false,
                             LastName = "Doe",
                             PasswordHash = "hashed_password_here",
                             PhoneNumber = "5559876543"

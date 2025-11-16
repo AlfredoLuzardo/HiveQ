@@ -24,12 +24,6 @@ namespace HiveQ.Migrations
                     PhoneNumber = table.Column<string>(type: "TEXT", maxLength: 20, nullable: true),
                     FirstName = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
                     LastName = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
-                    CompanyName = table.Column<string>(type: "TEXT", maxLength: 200, nullable: true),
-                    CompanyDescription = table.Column<string>(type: "TEXT", nullable: true),
-                    CompanyAddress = table.Column<string>(type: "TEXT", maxLength: 500, nullable: true),
-                    CompanyCategory = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
-                    LogoUrl = table.Column<string>(type: "TEXT", maxLength: 500, nullable: true),
-                    IsVerified = table.Column<bool>(type: "INTEGER", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
                     IsActive = table.Column<bool>(type: "INTEGER", nullable: false)
                 },
@@ -175,11 +169,11 @@ namespace HiveQ.Migrations
 
             migrationBuilder.InsertData(
                 table: "Users",
-                columns: new[] { "UserId", "CompanyAddress", "CompanyCategory", "CompanyDescription", "CompanyName", "CreatedAt", "Email", "FirstName", "IsActive", "IsVerified", "LastName", "LogoUrl", "PasswordHash", "PhoneNumber" },
+                columns: new[] { "UserId", "CreatedAt", "Email", "FirstName", "IsActive", "LastName", "PasswordHash", "PhoneNumber" },
                 values: new object[,]
                 {
-                    { 1, "123 Main St, City, State 12345", "Food & Beverage", "A cozy coffee shop in the heart of the city", "Sample Coffee Shop", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "owner@coffeeshop.com", "Sarah", true, true, "Johnson", null, "hashed_password_here", "5551234567" },
-                    { 2, null, null, null, null, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "customer@example.com", "John", true, false, "Doe", null, "hashed_password_here", "5559876543" }
+                    { 1, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "owner@coffeeshop.com", "Sarah", true, "Johnson", "hashed_password_here", "5551234567" },
+                    { 2, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "customer@example.com", "John", true, "Doe", "hashed_password_here", "5559876543" }
                 });
 
             migrationBuilder.InsertData(
