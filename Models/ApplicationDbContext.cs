@@ -32,11 +32,11 @@ namespace HiveQ.Models
             // Configure relationships
             
             // User -> Queues (One-to-Many)
-            modelBuilder.Entity<Queue>()
-                .HasOne(q => q.User)
-                .WithMany(u => u.Queues)
-                .HasForeignKey(q => q.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+            // modelBuilder.Entity<Queue>()
+            //     .HasOne(q => q.User)
+            //     .WithMany(u => u.Queues)
+            //     .HasForeignKey(q => q.UserId)
+            //     .OnDelete(DeleteBehavior.Cascade);
 
             // Queue -> QueueEntries (One-to-Many)
             modelBuilder.Entity<QueueEntry>()
@@ -106,11 +106,6 @@ namespace HiveQ.Models
                     PhoneNumber = "5551234567",
                     FirstName = "Sarah",
                     LastName = "Johnson",
-                    CompanyName = "Sample Coffee Shop",
-                    CompanyDescription = "A cozy coffee shop in the heart of the city",
-                    CompanyAddress = "123 Main St, City, State 12345",
-                    CompanyCategory = "Food & Beverage",
-                    IsVerified = true,
                     CreatedAt = seedDate,
                     IsActive = true
                 },
