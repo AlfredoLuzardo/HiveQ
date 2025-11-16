@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HiveQ.Controllers
@@ -5,6 +6,7 @@ namespace HiveQ.Controllers
     public class ManageQueuesController : Controller
     {
         // GET: ManageQueues
+        [Authorize]
         public IActionResult Index()
         {
             // TODO: Load company queues from database
@@ -13,6 +15,7 @@ namespace HiveQ.Controllers
 
         // POST: ManageQueues/DeleteQueue/5
         [HttpPost]
+        [Authorize]
         public IActionResult DeleteQueue(int id)
         {
             // TODO: Implement delete queue logic
@@ -21,6 +24,7 @@ namespace HiveQ.Controllers
         }
 
         // GET: ManageQueues/EditQueue/5
+        [Authorize]
         public IActionResult EditQueue(int id)
         {
             // TODO: Load queue from database for editing
@@ -29,6 +33,7 @@ namespace HiveQ.Controllers
 
         // POST: ManageQueues/EditQueue/5
         [HttpPost]
+        [Authorize]
         public IActionResult EditQueue(int id, string queueName)
         {
             // TODO: Implement edit queue logic

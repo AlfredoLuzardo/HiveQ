@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using HiveQ.Models;
 using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HiveQ.Controllers
 {
@@ -13,8 +14,12 @@ namespace HiveQ.Controllers
         {
             _context = context;
         }
-
-        // GET: Home - Shows list of queues
+            
+        /// <summary>
+        /// GET: Home/Index
+        /// </summary>
+        /// <returns></returns>
+        [Authorize]
         public async Task<IActionResult> Index()
         {
             var queues = await _context.Queues
@@ -23,25 +28,41 @@ namespace HiveQ.Controllers
                 .OrderByDescending(q => q.CreatedAt)
                 .ToListAsync();
 
+            ViewBag.Name = HttpContext.User.Identity?.Name;
             return View(queues);
         }
 
-        // GET: Home/ViewQueuePos/5
+        /// <summary>
+        /// GET: Home/ViewQueuePos
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [Authorize]
         public IActionResult ViewQueuePos(int id)
         {
             // TODO: Load queue position from database
             return View();
         }
 
-        // GET: Home/ViewQueue/5
+        /// <summary>
+        /// GET: Home/ViewQueue
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [Authorize]
         public IActionResult ViewQueue(int id)
         {
             // TODO: Load queue details from database
             return View();
         }
 
-        // POST: Home/LeaveQueue/5
+        /// <summary>
+        /// POST: Home/LeaveQueue        
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpPost]
+        [Authorize]
         public IActionResult LeaveQueue(int id)
         {
             // TODO: Implement leave queue logic
@@ -49,6 +70,10 @@ namespace HiveQ.Controllers
             return RedirectToAction("Index");
         }
 
+        /// <summary>
+        /// GET: Home/Error
+        /// </summary>
+        /// <returns></returns>
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using HiveQ.Models;
 
@@ -13,6 +14,7 @@ namespace HiveQ.Controllers
         }
 
         // GET: CreateQueue
+        [Authorize]
         public IActionResult Index()
         {
             return View();
@@ -20,6 +22,7 @@ namespace HiveQ.Controllers
 
         // POST: CreateQueue
         [HttpPost]
+        [Authorize]
         public IActionResult Index(string queueName, string? description, int? maxCapacity, 
             int estimatedTime, string status, bool emailNotifications, bool smsNotifications)
         {
@@ -83,6 +86,7 @@ namespace HiveQ.Controllers
         }
 
         // GET: CreateQueue/CreateQueueConfirmation
+        [Authorize]
         public IActionResult CreateQueueConfirmation()
         {
             // Check if we have the necessary data from queue creation
