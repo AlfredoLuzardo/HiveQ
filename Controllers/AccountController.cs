@@ -21,6 +21,7 @@ namespace HiveQ.Controllers
         ApplicationDbContext context) : Controller
     {
         private readonly ApplicationDbContext _context = context;
+        private readonly PasswordHasher<User> _passwordHasher = new();
 
         /// <summary>
         /// GET: Account/Login
@@ -43,26 +44,35 @@ namespace HiveQ.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = _context.Users.Where(u => u.Email == model.Email && u.PasswordHash == model.Password).FirstOrDefault();
-                
+                var user = _context.Users.Where(u => u.Email == model.Email).FirstOrDefault();
+
                 if (user != null)
                 {
-                    var claims = new List<Claim>
+                    var result = _passwordHasher.VerifyHashedPassword(user, user?.PasswordHash ?? "", model.Password);
+
+                    if (result == PasswordVerificationResult.Success)
                     {
-                        new("FirstName", user.FirstName),
-                        new("LastName", user.LastName),
-                        new(ClaimTypes.Email, user.Email),
-                        new(ClaimTypes.Role, "User")
-                    };
+                        var claims = new List<Claim>
+                        {
+                            new("FirstName", user.FirstName),
+                            new("LastName", user.LastName),
+                            new(ClaimTypes.Email, user.Email),
+                            new(ClaimTypes.Role, "User")
+                        };
 
-                    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                    HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+                        var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                        HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
 
-                    return RedirectToAction("Index", "Home");
+                        return RedirectToAction("Index", "Home");
+                    }
+                    else
+                    {
+                        ModelState.AddModelError(string.Empty, "Invalid password");
+                    }
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                    ModelState.AddModelError(string.Empty, "A user with this email does not exist");
                 }
             }
             return View(model);
@@ -100,14 +110,14 @@ namespace HiveQ.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = new User
-                {
-                    FirstName = model.FirstName,
-                    LastName = model.LastName,
-                    Email = model.Email,
-                    PasswordHash = model.Password,
-                    PhoneNumber = model.PhoneNumber
-                };
+                var user = new User();
+                var hashedPassword = _passwordHasher.HashPassword(user, model.Password);
+
+                user.FirstName = model.FirstName;
+                user.LastName = model.LastName;
+                user.Email = model.Email;
+                user.PasswordHash = hashedPassword;
+                user.PhoneNumber = model.PhoneNumber;
 
                 try
                 {
