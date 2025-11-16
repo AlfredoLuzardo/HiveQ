@@ -9,8 +9,8 @@ namespace HiveQ.Models
         public int QueueId { get; set; }
 
         [Required]
-        [ForeignKey("Company")]
-        public int CompanyId { get; set; }
+        [ForeignKey("User")]
+        public int UserId { get; set; }
 
         [Required]
         [StringLength(200)]
@@ -44,7 +44,7 @@ namespace HiveQ.Models
         public bool IsActive { get; set; } = true;
 
         // Navigation properties
-        public Company Company { get; set; } = null!;
+        public User User { get; set; } = null!;
         public ICollection<QueueEntry> QueueEntries { get; set; } = new List<QueueEntry>();
         public ICollection<QueueHistory> QueueHistories { get; set; } = new List<QueueHistory>();
     }

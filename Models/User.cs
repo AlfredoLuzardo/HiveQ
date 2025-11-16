@@ -29,16 +29,29 @@ namespace HiveQ.Models
         [StringLength(100)]
         public string LastName { get; set; } = string.Empty;
 
-        [Required]
-        [StringLength(50)]
-        public string UserType { get; set; } = "Customer"; // Customer or CompanyOwner
+        // Company/Business Information (optional - only if user creates queues)
+        [StringLength(200)]
+        public string? CompanyName { get; set; }
+
+        public string? CompanyDescription { get; set; }
+
+        [StringLength(500)]
+        public string? CompanyAddress { get; set; }
+
+        [StringLength(100)]
+        public string? CompanyCategory { get; set; }
+
+        [StringLength(500)]
+        public string? LogoUrl { get; set; }
+
+        public bool IsVerified { get; set; } = false;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public bool IsActive { get; set; } = true;
 
         // Navigation properties
-        public Company? Company { get; set; }
+        public ICollection<Queue> Queues { get; set; } = new List<Queue>();
         public ICollection<QueueEntry> QueueEntries { get; set; } = new List<QueueEntry>();
         public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
         public ICollection<QueueHistory> QueueHistories { get; set; } = new List<QueueHistory>();

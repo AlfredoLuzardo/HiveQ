@@ -17,74 +17,6 @@ namespace HiveQ.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
 
-            modelBuilder.Entity("HiveQ.Models.Company", b =>
-                {
-                    b.Property<int>("CompanyId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Address")
-                        .HasMaxLength(500)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Category")
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("CompanyName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("TEXT");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("IsVerified")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("LogoUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasMaxLength(20)
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("CompanyId");
-
-                    b.HasIndex("CompanyName")
-                        .IsUnique();
-
-                    b.HasIndex("UserId")
-                        .IsUnique();
-
-                    b.ToTable("Companies");
-
-                    b.HasData(
-                        new
-                        {
-                            CompanyId = 1,
-                            Address = "123 Main St, City, State 12345",
-                            Category = "Food & Beverage",
-                            CompanyName = "Sample Coffee Shop",
-                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "A cozy coffee shop in the heart of the city",
-                            IsActive = true,
-                            IsVerified = true,
-                            PhoneNumber = "5551234567",
-                            UserId = 1
-                        });
-                });
-
             modelBuilder.Entity("HiveQ.Models.Notification", b =>
                 {
                     b.Property<int>("NotificationId")
@@ -137,9 +69,6 @@ namespace HiveQ.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("CompanyId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
@@ -183,12 +112,15 @@ namespace HiveQ.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("TEXT");
 
-                    b.HasKey("QueueId");
+                    b.Property<int>("UserId")
+                        .HasColumnType("INTEGER");
 
-                    b.HasIndex("CompanyId");
+                    b.HasKey("QueueId");
 
                     b.HasIndex("QRCodeData")
                         .IsUnique();
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Queues");
 
@@ -196,7 +128,6 @@ namespace HiveQ.Migrations
                         new
                         {
                             QueueId = 1,
-                            CompanyId = 1,
                             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             CurrentQueueSize = 0,
                             Description = "Main service queue for morning hours",
@@ -207,7 +138,8 @@ namespace HiveQ.Migrations
                             QueueName = "Morning Service",
                             Status = "Active",
                             TotalServedToday = 0,
-                            UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                            UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            UserId = 1
                         });
                 });
 
@@ -310,6 +242,21 @@ namespace HiveQ.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("CompanyAddress")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CompanyCategory")
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CompanyDescription")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CompanyName")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
@@ -326,9 +273,16 @@ namespace HiveQ.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("INTEGER");
 
+                    b.Property<bool>("IsVerified")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LogoUrl")
+                        .HasMaxLength(500)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("PasswordHash")
@@ -338,11 +292,6 @@ namespace HiveQ.Migrations
 
                     b.Property<string>("PhoneNumber")
                         .HasMaxLength(20)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("UserType")
-                        .IsRequired()
-                        .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
                     b.HasKey("UserId");
@@ -356,26 +305,31 @@ namespace HiveQ.Migrations
                         new
                         {
                             UserId = 1,
+                            CompanyAddress = "123 Main St, City, State 12345",
+                            CompanyCategory = "Food & Beverage",
+                            CompanyDescription = "A cozy coffee shop in the heart of the city",
+                            CompanyName = "Sample Coffee Shop",
                             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Email = "test@hiveq.com",
-                            FirstName = "Test",
+                            Email = "owner@coffeeshop.com",
+                            FirstName = "Sarah",
                             IsActive = true,
-                            LastName = "User",
+                            IsVerified = true,
+                            LastName = "Johnson",
                             PasswordHash = "hashed_password_here",
-                            PhoneNumber = "1234567890",
-                            UserType = "CompanyOwner"
+                            PhoneNumber = "5551234567"
+                        },
+                        new
+                        {
+                            UserId = 2,
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Email = "customer@example.com",
+                            FirstName = "John",
+                            IsActive = true,
+                            IsVerified = false,
+                            LastName = "Doe",
+                            PasswordHash = "hashed_password_here",
+                            PhoneNumber = "5559876543"
                         });
-                });
-
-            modelBuilder.Entity("HiveQ.Models.Company", b =>
-                {
-                    b.HasOne("HiveQ.Models.User", "User")
-                        .WithOne("Company")
-                        .HasForeignKey("HiveQ.Models.Company", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("HiveQ.Models.Notification", b =>
@@ -399,13 +353,13 @@ namespace HiveQ.Migrations
 
             modelBuilder.Entity("HiveQ.Models.Queue", b =>
                 {
-                    b.HasOne("HiveQ.Models.Company", "Company")
+                    b.HasOne("HiveQ.Models.User", "User")
                         .WithMany("Queues")
-                        .HasForeignKey("CompanyId")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Company");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("HiveQ.Models.QueueEntry", b =>
@@ -453,11 +407,6 @@ namespace HiveQ.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("HiveQ.Models.Company", b =>
-                {
-                    b.Navigation("Queues");
-                });
-
             modelBuilder.Entity("HiveQ.Models.Queue", b =>
                 {
                     b.Navigation("QueueEntries");
@@ -474,13 +423,13 @@ namespace HiveQ.Migrations
 
             modelBuilder.Entity("HiveQ.Models.User", b =>
                 {
-                    b.Navigation("Company");
-
                     b.Navigation("Notifications");
 
                     b.Navigation("QueueEntries");
 
                     b.Navigation("QueueHistories");
+
+                    b.Navigation("Queues");
                 });
 #pragma warning restore 612, 618
         }

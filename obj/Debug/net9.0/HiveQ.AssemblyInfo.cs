@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("HiveQ")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d0492d13afc7bf5eeaaae9a7f4d54c2e5dbafb4b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+77f6232ff3fa097bacbabf58317590affbe1ca53")]
 [assembly: System.Reflection.AssemblyProductAttribute("HiveQ")]
 [assembly: System.Reflection.AssemblyTitleAttribute("HiveQ")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

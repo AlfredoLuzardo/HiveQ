@@ -11,7 +11,6 @@ namespace HiveQ.Models
 
         // DbSets for all entities
         public DbSet<User> Users { get; set; }
-        public DbSet<Company> Companies { get; set; }
         public DbSet<Queue> Queues { get; set; }
         public DbSet<QueueEntry> QueueEntries { get; set; }
         public DbSet<Notification> Notifications { get; set; }
@@ -26,28 +25,17 @@ namespace HiveQ.Models
                 .HasIndex(u => u.Email)
                 .IsUnique();
 
-            modelBuilder.Entity<Company>()
-                .HasIndex(c => c.CompanyName)
-                .IsUnique();
-
             modelBuilder.Entity<Queue>()
                 .HasIndex(q => q.QRCodeData)
                 .IsUnique();
 
             // Configure relationships
             
-            // User -> Company (One-to-One)
-            modelBuilder.Entity<Company>()
-                .HasOne(c => c.User)
-                .WithOne(u => u.Company)
-                .HasForeignKey<Company>(c => c.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // Company -> Queues (One-to-Many)
+            // User -> Queues (One-to-Many)
             modelBuilder.Entity<Queue>()
-                .HasOne(q => q.Company)
-                .WithMany(c => c.Queues)
-                .HasForeignKey(q => q.CompanyId)
+                .HasOne(q => q.User)
+                .WithMany(u => u.Queues)
+                .HasForeignKey(q => q.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Queue -> QueueEntries (One-to-Many)
@@ -108,34 +96,32 @@ namespace HiveQ.Models
             // Use a FIXED date instead of DateTime.UtcNow to avoid migration conflicts
             var seedDate = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
-            // Seed a test user
+            // Seed a test user with company information
             modelBuilder.Entity<User>().HasData(
                 new User
                 {
                     UserId = 1,
-                    Email = "test@hiveq.com",
+                    Email = "owner@coffeeshop.com",
                     PasswordHash = "hashed_password_here", // In real app, use proper password hashing
-                    PhoneNumber = "1234567890",
-                    FirstName = "Test",
-                    LastName = "User",
-                    UserType = "CompanyOwner",
+                    PhoneNumber = "5551234567",
+                    FirstName = "Sarah",
+                    LastName = "Johnson",
+                    CompanyName = "Sample Coffee Shop",
+                    CompanyDescription = "A cozy coffee shop in the heart of the city",
+                    CompanyAddress = "123 Main St, City, State 12345",
+                    CompanyCategory = "Food & Beverage",
+                    IsVerified = true,
                     CreatedAt = seedDate,
                     IsActive = true
-                }
-            );
-
-            // Seed a test company
-            modelBuilder.Entity<Company>().HasData(
-                new Company
+                },
+                new User
                 {
-                    CompanyId = 1,
-                    UserId = 1,
-                    CompanyName = "Sample Coffee Shop",
-                    Description = "A cozy coffee shop in the heart of the city",
-                    Address = "123 Main St, City, State 12345",
-                    PhoneNumber = "5551234567",
-                    Category = "Food & Beverage",
-                    IsVerified = true,
+                    UserId = 2,
+                    Email = "customer@example.com",
+                    PasswordHash = "hashed_password_here",
+                    PhoneNumber = "5559876543",
+                    FirstName = "John",
+                    LastName = "Doe",
                     CreatedAt = seedDate,
                     IsActive = true
                 }
@@ -146,7 +132,7 @@ namespace HiveQ.Models
                 new Queue
                 {
                     QueueId = 1,
-                    CompanyId = 1,
+                    UserId = 1, // Created by Sarah (Coffee Shop owner)
                     QueueName = "Morning Service",
                     Description = "Main service queue for morning hours",
                     QRCodeData = "HIVEQ_QUEUE_1",
