@@ -7,6 +7,9 @@ namespace HiveQ.Models
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
+            // Enable WAL mode for better concurrency
+            Database.ExecuteSqlRaw("PRAGMA journal_mode=WAL;");
+            Database.ExecuteSqlRaw("PRAGMA busy_timeout=5000;");
         }
 
         // DbSets for all entities

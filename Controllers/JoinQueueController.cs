@@ -301,6 +301,79 @@ namespace HiveQ.Controllers
             }
         }
 
+        // POST: JoinQueue/MarkArrived/{queueEntryId}
+        [HttpPost]
+        public async Task<IActionResult> MarkArrived(int queueEntryId)
+        {
+            try
+            {
+                var queueEntry = await _context.QueueEntries
+                    .Include(qe => qe.Queue)
+                    .FirstOrDefaultAsync(qe => qe.QueueEntryId == queueEntryId);
+
+                if (queueEntry != null && queueEntry.Status == "Notified")
+                {
+                    // Update notes to indicate customer has arrived
+                    queueEntry.Notes = (queueEntry.Notes ?? "") + " | Customer arrived at " + DateTime.UtcNow.ToLocalTime().ToString("h:mm tt");
+                    await _context.SaveChangesAsync();
+
+                    TempData["Message"] = "Thank you! The staff has been notified that you've arrived.";
+                }
+
+                return RedirectToAction("ViewPosition", new { queueEntryId = queueEntryId });
+            }
+            catch (Exception)
+            {
+                TempData["Error"] = "An error occurred.";
+                return RedirectToAction("ViewPosition", new { queueEntryId = queueEntryId });
+            }
+        }
+
+        // GET: JoinQueue/MyQueues
+        public async Task<IActionResult> MyQueues()
+        {
+            try
+            {
+                List<QueueEntry> myEntries;
+
+                if (User.Identity?.IsAuthenticated == true)
+                {
+                    // Authenticated user - get their queue entries by email
+                    var userEmail = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Email)?.Value;
+                    if (string.IsNullOrEmpty(userEmail))
+                    {
+                        return View(new List<QueueEntry>());
+                    }
+
+                    var currentUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
+                    if (currentUser == null)
+                    {
+                        return View(new List<QueueEntry>());
+                    }
+
+                    myEntries = await _context.QueueEntries
+                        .Include(qe => qe.Queue)
+                        .Include(qe => qe.User)
+                        .Where(qe => qe.UserId == currentUser.UserId && 
+                                   (qe.Status == "Waiting" || qe.Status == "Notified"))
+                        .OrderBy(qe => qe.JoinedAt)
+                        .ToListAsync();
+                }
+                else
+                {
+                    // Guest user - show empty (they need to bookmark individual queue positions)
+                    myEntries = new List<QueueEntry>();
+                }
+
+                return View(myEntries);
+            }
+            catch (Exception)
+            {
+                TempData["Error"] = "An error occurred while loading your queues.";
+                return View(new List<QueueEntry>());
+            }
+        }
+
         // Helper method to join authenticated users
         private async Task<IActionResult> JoinAuthenticatedUser(Queue queue, User user)
         {
