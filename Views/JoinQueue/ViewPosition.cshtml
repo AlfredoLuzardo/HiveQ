@@ -1,8 +1,71 @@
 @{
     ViewData["Title"] = "Your Queue Position";
     var queueEntry = ViewBag.QueueEntry as HiveQ.Models.QueueEntry;
+    var isServed = queueEntry?.Status == "Served" || queueEntry?.Status == "Cancelled" || queueEntry?.Status == "NoShow";
 }
 
+@if (isServed)
+{
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="card border-success mt-5">
+                <div class="card-header bg-success text-white text-center py-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="bi bi-check-circle-fill mb-3" viewBox="0 0 16 16">
+                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                    </svg>
+                    <h2 class="mb-0">You've Been Served!</h2>
+                </div>
+                <div class="card-body text-center py-5">
+                    <h4 class="mb-4">Thank you for using @queueEntry?.Queue.QueueName</h4>
+                    <p class="lead text-muted mb-4">Your service has been completed.</p>
+                    
+                    @if (queueEntry?.Status == "Served")
+                    {
+                        <div class="alert alert-success">
+                            <strong>Served at:</strong> @queueEntry.ServedAt?.ToLocalTime().ToString("h:mm tt")
+                        </div>
+                    }
+                    else if (queueEntry?.Status == "Cancelled")
+                    {
+                        <div class="alert alert-warning">
+                            <strong>Status:</strong> Your queue entry was cancelled
+                        </div>
+                    }
+                    else if (queueEntry?.Status == "NoShow")
+                    {
+                        <div class="alert alert-danger">
+                            <strong>Status:</strong> Marked as no-show
+                        </div>
+                    }
+                    
+                    <hr class="my-4" />
+                    
+                    <div class="d-grid gap-2">
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-primary btn-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-house-door" viewBox="0 0 16 16">
+                                <path d="M8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4.5a.5.5 0 0 0 .5-.5v-4h2v4a.5.5 0 0 0 .5.5H14a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146zM2.5 14V7.707l5.5-5.5 5.5 5.5V14H10v-4a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v4H2.5z"/>
+                            </svg>
+                            Browse Other Queues
+                        </a>
+                        <a asp-controller="JoinQueue" asp-action="MyQueues" class="btn btn-outline-secondary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-list-ul" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm-3 1a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>
+                            </svg>
+                            View My Other Queues
+                        </a>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <small class="text-muted">Queue: @queueEntry?.Queue.QueueName</small><br/>
+                        <small class="text-muted">Joined: @queueEntry?.JoinedAt.ToLocalTime().ToString("MMM dd, h:mm tt")</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
 <div class="row">
     <div class="col-md-6 offset-md-3">
         <div class="text-center mb-4">
@@ -146,10 +209,16 @@
         </div>
     </div>
 </div>
+}
 
 <script>
-    // Auto-refresh every 30 seconds to update position
-    setTimeout(function() {
-        location.reload();
-    }, 30000);
+    // Auto-refresh every 30 seconds to update position (only if not served)
+    @if (!isServed)
+    {
+        <text>
+        setTimeout(function() {
+            location.reload();
+        }, 30000);
+        </text>
+    }
 </script>
