@@ -283,6 +283,7 @@ namespace HiveQ.Controllers
             {
                 var queueEntry = await _context.QueueEntries
                     .Include(qe => qe.Queue)
+                    .Include(qe => qe.User)
                     .FirstOrDefaultAsync(qe => qe.QueueEntryId == queueEntryId);
 
                 if (queueEntry != null && (queueEntry.Status == "Waiting" || queueEntry.Status == "Notified"))
@@ -290,6 +291,20 @@ namespace HiveQ.Controllers
                     queueEntry.Status = "Cancelled";
                     queueEntry.Queue.CurrentQueueSize--;
                     queueEntry.Queue.UpdatedAt = DateTime.UtcNow;
+
+                    // Auto-delete guest user if they have no other active queue entries
+                    if (queueEntry.User != null && queueEntry.User.PasswordHash == "GUEST_USER")
+                    {
+                        var hasOtherActiveEntries = await _context.QueueEntries
+                            .AnyAsync(qe => qe.UserId == queueEntry.UserId &&
+                                           qe.QueueEntryId != queueEntryId &&
+                                           (qe.Status == "Waiting" || qe.Status == "Notified"));
+
+                        if (!hasOtherActiveEntries)
+                        {
+                            _context.Users.Remove(queueEntry.User);
+                        }
+                    }
 
                     await _context.SaveChangesAsync();
 
