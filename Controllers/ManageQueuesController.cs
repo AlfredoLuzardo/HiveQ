@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using HiveQ.Models;
 using HiveQ.Services;
+using QRCoder;
+using System.Drawing;
+using System.Drawing.Imaging;
 
 namespace HiveQ.Controllers
 {
@@ -40,6 +43,32 @@ namespace HiveQ.Controllers
                 .OrderByDescending(q => q.CreatedAt)
                 .ToListAsync();
 
+            // Generate QR codes for each queue
+            var queueQRCodes = new Dictionary<int, string>();
+            foreach (var queue in queues)
+            {
+                string joinUrl = $"{Request.Scheme}://{Request.Host}/JoinQueue?code={queue.QRCodeData}";
+                
+                using (QRCodeGenerator qrGenerator = new QRCodeGenerator())
+                {
+                    QRCodeData qrCodeDataObj = qrGenerator.CreateQrCode(joinUrl, QRCodeGenerator.ECCLevel.Q);
+                    using (QRCode qrCode = new QRCode(qrCodeDataObj))
+                    {
+                        using (Bitmap qrCodeImage = qrCode.GetGraphic(10))
+                        {
+                            using (MemoryStream ms = new MemoryStream())
+                            {
+                                qrCodeImage.Save(ms, ImageFormat.Png);
+                                byte[] qrCodeBytes = ms.ToArray();
+                                string qrCodeBase64 = Convert.ToBase64String(qrCodeBytes);
+                                queueQRCodes[queue.QueueId] = $"data:image/png;base64,{qrCodeBase64}";
+                            }
+                        }
+                    }
+                }
+            }
+
+            ViewBag.QueueQRCodes = queueQRCodes;
             return View(queues);
         }
 
