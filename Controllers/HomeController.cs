@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using HiveQ.Models;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Authorization;
@@ -7,15 +8,28 @@ namespace HiveQ.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly ApplicationDbContext _context;
+
+        public HomeController(ApplicationDbContext context)
+        {
+            _context = context;
+        }
+            
         /// <summary>
         /// GET: Home/Index
         /// </summary>
         /// <returns></returns>
         [Authorize]
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
+            var queues = await _context.Queues
+                .Where(q => q.IsActive && q.Status != "Closed")
+                .Include(q => q.User)
+                .OrderByDescending(q => q.CreatedAt)
+                .ToListAsync();
+
             ViewBag.Name = HttpContext.User.Identity?.Name;
-            return View();
+            return View(queues);
         }
 
         /// <summary>

@@ -16,6 +16,66 @@
             <h1 class="display-4">Queue Created Successfully!</h1>
             <p class="lead mt-3">Your queue is now live and ready to accept customers.</p>
 
+            @if (TempData["QueueName"] != null)
+            {
+                <div class="alert alert-info mt-4">
+                    <strong>Queue Name:</strong> @TempData["QueueName"]<br />
+                    <strong>Queue ID:</strong> @TempData["QueueId"]
+                </div>
+            }
+
+            @if (TempData["QRCodeData"] != null)
+            {
+                var baseUrl = $"{Context.Request.Scheme}://{Context.Request.Host}";
+                var joinUrl = $"{baseUrl}/JoinQueue?code={TempData["QRCodeData"]}";
+                
+                <div class="card mt-4 border-primary">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-qr-code" viewBox="0 0 16 16">
+                                <path d="M2 2h2v2H2V2Z"/>
+                                <path d="M6 0v6H0V0h6ZM5 1H1v4h4V1ZM4 12H2v2h2v-2Z"/>
+                                <path d="M6 10v6H0v-6h6Zm-5 1v4h4v-4H1Zm11-9h2v2h-2V2Z"/>
+                                <path d="M10 0v6h6V0h-6Zm5 1v4h-4V1h4ZM8 1V0h1v2H8v2H7V1h1Zm0 5V4h1v2H8ZM6 8V7h1V6h1v2h1V7h5v1h-4v1H7V8H6Zm0 0v1H2V8H1v1H0V7h3v1h3Zm10 1h-1V7h1v2Zm-1 0h-1v2h2v-1h-1V9Zm-4 0h2v1h-1v1h-1V9Zm2 3v-1h-1v1h-1v1H9v1h3v-2h1Zm0 0h3v1h-2v1h-1v-2Zm-4-1v1h1v-2H7v1h2Z"/>
+                                <path d="M7 12h1v3h4v1H7v-4Zm9 2v2h-3v-1h2v-1h1Z"/>
+                            </svg>
+                            Secure Customer Join Link
+                        </h5>
+                        <p class="text-muted">Share this encrypted link or QR code with your customers to join the queue</p>
+                        
+                        <!-- QR Code Image Display -->
+                        @if (ViewBag.QRCodeImage != null)
+                        {
+                            <div class="text-center mb-4">
+                                <img src="@ViewBag.QRCodeImage" alt="QR Code" class="img-fluid border rounded p-3 bg-white" style="max-width: 300px;" />
+                                <p class="text-muted small mt-2">Scan with any QR code reader</p>
+                            </div>
+                        }
+                        
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" id="joinLink" value="@joinUrl" readonly />
+                            <button class="btn btn-outline-primary" type="button" onclick="copyLink()">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard" viewBox="0 0 16 16">
+                                    <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+                                    <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+                                </svg>
+                                Copy
+                            </button>
+                        </div>
+                        
+                        <div class="alert alert-success mb-0">
+                            <small>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-shield-check" viewBox="0 0 16 16">
+                                    <path d="M5.338 1.59a61.44 61.44 0 0 0-2.837.856.481.481 0 0 0-.328.39c-.554 4.157.726 7.19 2.253 9.188a10.725 10.725 0 0 0 2.287 2.233c.346.244.652.42.893.533.12.057.218.095.293.118a.55.55 0 0 0 .101.025.615.615 0 0 0 .1-.025c.076-.023.174-.061.294-.118.24-.113.547-.29.893-.533a10.726 10.726 0 0 0 2.287-2.233c1.527-1.997 2.807-5.031 2.253-9.188a.48.48 0 0 0-.328-.39c-.651-.213-1.75-.56-2.837-.855C9.552 1.29 8.531 1.067 8 1.067c-.53 0-1.552.223-2.662.524zM5.072.56C6.157.265 7.31 0 8 0s1.843.265 2.928.56c1.11.3 2.229.655 2.887.87a1.54 1.54 0 0 1 1.044 1.262c.596 4.477-.787 7.795-2.465 9.99a11.775 11.775 0 0 1-2.517 2.453 7.159 7.159 0 0 1-1.048.625c-.28.132-.581.24-.829.24s-.548-.108-.829-.24a7.158 7.158 0 0 1-1.048-.625 11.777 11.777 0 0 1-2.517-2.453C1.928 10.487.545 7.169 1.141 2.692A1.54 1.54 0 0 1 2.185 1.43 62.456 62.456 0 0 1 5.072.56z"/>
+                                    <path d="M10.854 5.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 7.793l2.646-2.647a.5.5 0 0 1 .708 0z"/>
+                                </svg>
+                                <strong>Secure:</strong> This link uses an encrypted code that prevents unauthorized queue access
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            }
+
             <div class="card mt-5">
                 <div class="card-body text-start">
                     <h5 class="card-title">What's Next?</h5>
@@ -44,8 +104,29 @@
 
             <div class="mt-4">
                 <a asp-controller="ManageQueues" asp-action="Index" class="btn btn-primary btn-lg me-2">View My Queues</a>
-                <a asp-controller="CreateQueue" asp-action="Index" class="btn btn-outline-secondary btn-lg">Create Another Queue</a>
+                <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary btn-lg">Return to Home</a>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    function copyLink() {
+        const linkInput = document.getElementById('joinLink');
+        linkInput.select();
+        linkInput.setSelectionRange(0, 99999); // For mobile devices
+
+        navigator.clipboard.writeText(linkInput.value).then(function() {
+            // Change button text temporarily
+            const btn = event.target.closest('button');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16"><path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/></svg> Copied!';
+            
+            setTimeout(function() {
+                btn.innerHTML = originalHTML;
+            }, 2000);
+        }, function(err) {
+            alert('Failed to copy link. Please copy manually.');
+        });
+    }
+</script>
