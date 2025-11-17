@@ -13,26 +13,26 @@ namespace HiveQ.Controllers
             _context = context;
         }
 
-        // GET: JoinQueue/{queueId} or JoinQueue?code={qrCodeData}
+        // GET: JoinQueue?code={qrCodeData}
         // This is the page users land on when scanning the QR code
-        public async Task<IActionResult> Index(int? queueId, string? code)
+        // Security: Only accepts encrypted QR code, not direct queueId
+        public async Task<IActionResult> Index(string? code)
         {
             try
             {
                 Queue? queue = null;
 
-                // Find queue by ID or QR code
-                if (queueId.HasValue)
-                {
-                    queue = await _context.Queues
-                        .Include(q => q.QueueEntries)
-                        .FirstOrDefaultAsync(q => q.QueueId == queueId.Value && q.IsActive);
-                }
-                else if (!string.IsNullOrEmpty(code))
+                // Find queue by QR code only (security measure)
+                if (!string.IsNullOrEmpty(code))
                 {
                     queue = await _context.Queues
                         .Include(q => q.QueueEntries)
                         .FirstOrDefaultAsync(q => q.QRCodeData == code && q.IsActive);
+                }
+                else
+                {
+                    TempData["Error"] = "Invalid queue access. Please scan the QR code.";
+                    return RedirectToAction("Index", "Home");
                 }
 
                 if (queue == null)
@@ -127,7 +127,9 @@ namespace HiveQ.Controllers
                 if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName))
                 {
                     TempData["Error"] = "First name and last name are required.";
-                    return RedirectToAction("Index", new { queueId = queueId });
+                    // Redirect back using queue's QR code for security
+                    var queueForRedirect = await _context.Queues.FindAsync(queueId);
+                    return RedirectToAction("Index", new { code = queueForRedirect?.QRCodeData });
                 }
 
                 notificationPreference = notificationPreference ?? "None";
@@ -136,14 +138,16 @@ namespace HiveQ.Controllers
                 if (notificationPreference == "Email" && string.IsNullOrWhiteSpace(email))
                 {
                     TempData["Error"] = "Email is required for email notifications.";
-                    return RedirectToAction("Index", new { queueId = queueId });
+                    var queueForRedirect1 = await _context.Queues.FindAsync(queueId);
+                    return RedirectToAction("Index", new { code = queueForRedirect1?.QRCodeData });
                 }
 
                 if ((notificationPreference == "SMS" || notificationPreference == "Both") 
                     && string.IsNullOrWhiteSpace(phoneNumber))
                 {
                     TempData["Error"] = "Phone number is required for SMS notifications.";
-                    return RedirectToAction("Index", new { queueId = queueId });
+                    var queueForRedirect2 = await _context.Queues.FindAsync(queueId);
+                    return RedirectToAction("Index", new { code = queueForRedirect2?.QRCodeData });
                 }
 
                 // Load the queue
@@ -161,7 +165,7 @@ namespace HiveQ.Controllers
                 if (queue.CurrentQueueSize >= queue.MaxCapacity)
                 {
                     TempData["Error"] = "Queue is at full capacity.";
-                    return RedirectToAction("Index", new { queueId = queueId });
+                    return RedirectToAction("Index", new { code = queue.QRCodeData });
                 }
 
                 // Create or find guest user
@@ -227,7 +231,7 @@ namespace HiveQ.Controllers
             catch (Exception)
             {
                 TempData["Error"] = "An error occurred while joining the queue.";
-                return RedirectToAction("Index", new { queueId = queueId });
+                return RedirectToAction("Index", "Home");
             }
         }
 
@@ -383,7 +387,7 @@ namespace HiveQ.Controllers
                 if (queue.CurrentQueueSize >= queue.MaxCapacity)
                 {
                     TempData["Error"] = "Queue is at full capacity.";
-                    return RedirectToAction("Index", new { queueId = queue.QueueId });
+                    return RedirectToAction("Index", new { code = queue.QRCodeData });
                 }
 
                 // Calculate position number
@@ -423,7 +427,7 @@ namespace HiveQ.Controllers
             catch (Exception)
             {
                 TempData["Error"] = "An error occurred while joining the queue.";
-                return RedirectToAction("Index", new { queueId = queue.QueueId });
+                return RedirectToAction("Index", new { code = queue.QRCodeData });
             }
         }
     }

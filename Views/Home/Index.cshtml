@@ -79,7 +79,7 @@
                         <div class="d-grid">
                             @if (queue.Status == "Open" && queue.CurrentQueueSize < queue.MaxCapacity)
                             {
-                                <a asp-controller="JoinQueue" asp-action="Index" asp-route-queueId="@queue.QueueId" class="btn btn-primary">
+                                <a asp-controller="JoinQueue" asp-action="Index" asp-route-code="@queue.QRCodeData" class="btn btn-primary">
                                     Join Queue
                                 </a>
                             }

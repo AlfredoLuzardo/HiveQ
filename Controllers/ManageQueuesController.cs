@@ -143,6 +143,7 @@ namespace HiveQ.Controllers
 
             var queueEntry = await _context.QueueEntries
                 .Include(qe => qe.Queue)
+                .Include(qe => qe.User)
                 .FirstOrDefaultAsync(qe => qe.QueueEntryId == queueEntryId && qe.Queue.UserId == currentUser.UserId);
 
             if (queueEntry == null)
@@ -156,6 +157,21 @@ namespace HiveQ.Controllers
             queueEntry.Queue.CurrentQueueSize--;
             queueEntry.Queue.TotalServedToday++;
             queueEntry.Queue.UpdatedAt = DateTime.UtcNow;
+
+            // Auto-delete guest user if they have no other queue entries
+            if (queueEntry.User.PasswordHash == "GUEST_USER")
+            {
+                var hasOtherEntries = await _context.QueueEntries
+                    .AnyAsync(qe => qe.UserId == queueEntry.UserId && 
+                                   qe.QueueEntryId != queueEntryId && 
+                                   (qe.Status == "Waiting" || qe.Status == "Notified"));
+
+                if (!hasOtherEntries)
+                {
+                    // Guest user has no other active queue entries, safe to delete
+                    _context.Users.Remove(queueEntry.User);
+                }
+            }
 
             await _context.SaveChangesAsync();
 
