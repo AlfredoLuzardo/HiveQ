@@ -1,0 +1,117 @@
+@model IEnumerable<HiveQ.Models.Queue>
+
+@{
+    ViewData["Title"] = "Search Results";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2>
+                        <i class="bi bi-search"></i> Search Results
+                    </h2>
+                    <p class="text-muted">
+                        Found <strong>@ViewBag.ResultCount</strong> queue(s) for "<strong>@ViewBag.SearchQuery</strong>"
+                    </p>
+                </div>
+                <a asp-action="Index" class="btn btn-outline-primary">
+                    <i class="bi bi-arrow-left"></i> New Search
+                </a>
+            </div>
+
+            @if (!Model.Any())
+            {
+                <div class="alert alert-info" role="alert">
+                    <h4 class="alert-heading">
+                        <i class="bi bi-info-circle"></i> No Results Found
+                    </h4>
+                    <p>We couldn't find any active queues matching your search criteria.</p>
+                    <hr>
+                    <p class="mb-0">
+                        <strong>Suggestions:</strong>
+                    </p>
+                    <ul class="mb-0">
+                        <li>Try different keywords</li>
+                        <li>Check your spelling</li>
+                        <li>Use more general terms</li>
+                    </ul>
+                </div>
+            }
+            else
+            {
+                <div class="row">
+                    @foreach (var queue in Model)
+                    {
+                        var currentSize = queue.QueueEntries?.Count(qe => qe.Status == "Waiting" || qe.Status == "Notified") ?? 0;
+                        var estimatedWait = currentSize * queue.EstimatedWaitTimePerPerson;
+                        var isFull = currentSize >= queue.MaxCapacity;
+                        var statusBadgeClass = queue.Status == "Active" ? "bg-success" : "bg-warning";
+
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100 shadow-sm">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">@queue.QueueName</h5>
+                                    <span class="badge @statusBadgeClass">@queue.Status</span>
+                                </div>
+                                <div class="card-body">
+                                    @if (!string.IsNullOrEmpty(queue.Description))
+                                    {
+                                        <p class="text-muted">
+                                            <i class="bi bi-info-circle"></i> @queue.Description
+                                        </p>
+                                    }
+
+                                    <div class="row g-2 mb-3">
+                                        <div class="col-6">
+                                            <div class="border rounded p-2 text-center">
+                                                <small class="text-muted d-block">Current Size</small>
+                                                <strong class="text-primary">@currentSize / @queue.MaxCapacity</strong>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="border rounded p-2 text-center">
+                                                <small class="text-muted d-block">Est. Wait</small>
+                                                <strong class="text-primary">~@estimatedWait min</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex align-items-center mb-3">
+                                        <i class="bi bi-building me-2 text-muted"></i>
+                                        <small class="text-muted">
+                                            Managed by @queue.User.FirstName @queue.User.LastName
+                                        </small>
+                                    </div>
+
+                                    <div class="d-grid gap-2">
+                                        @if (isFull)
+                                        {
+                                            <button class="btn btn-secondary" disabled>
+                                                <i class="bi bi-x-circle"></i> Queue Full
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <a asp-action="QueueDetails" asp-route-id="@queue.QueueId" class="btn btn-primary">
+                                                <i class="bi bi-eye"></i> View Details & Join
+                                            </a>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="card-footer text-muted">
+                                    <small>
+                                        <i class="bi bi-clock"></i> Created @queue.CreatedAt.ToString("MMM dd, yyyy")
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
