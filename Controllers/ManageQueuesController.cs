@@ -2,38 +2,39 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using HiveQ.Models;
+using HiveQ.Services;
 
 namespace HiveQ.Controllers
 {
     public class ManageQueuesController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly AuthenticationService _authService;
 
-        public ManageQueuesController(ApplicationDbContext context)
+        public ManageQueuesController(ApplicationDbContext context, AuthenticationService authService)
         {
             _context = context;
+            _authService = authService;
+        }
+
+        private async Task<User?> GetAuthenticatedUserAsync()
+        {
+            var user = await _authService.GetCurrentUserAsync(User);
+            if (user == null)
+            {
+                TempData["Error"] = "User authentication error.";
+            }
+            return user;
         }
 
         // GET: ManageQueues
         [Authorize]
         public async Task<IActionResult> Index()
         {
-            // Get logged-in user's email
-            var userEmail = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Email)?.Value;
-            if (string.IsNullOrEmpty(userEmail))
-            {
-                TempData["Error"] = "User authentication error.";
-                return RedirectToAction("Login", "Account");
-            }
-
-            var currentUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
+            var currentUser = await GetAuthenticatedUserAsync();
             if (currentUser == null)
-            {
-                TempData["Error"] = "User not found.";
                 return RedirectToAction("Login", "Account");
-            }
 
-            // Load user's queues
             var queues = await _context.Queues
                 .Where(q => q.UserId == currentUser.UserId && q.IsActive)
                 .OrderByDescending(q => q.CreatedAt)
@@ -46,19 +47,9 @@ namespace HiveQ.Controllers
         [Authorize]
         public async Task<IActionResult> Details(int id)
         {
-            var userEmail = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Email)?.Value;
-            if (string.IsNullOrEmpty(userEmail))
-            {
-                TempData["Error"] = "User authentication error.";
-                return RedirectToAction("Login", "Account");
-            }
-
-            var currentUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
+            var currentUser = await GetAuthenticatedUserAsync();
             if (currentUser == null)
-            {
-                TempData["Error"] = "User not found.";
                 return RedirectToAction("Login", "Account");
-            }
 
             var queue = await _context.Queues
                 .Include(q => q.QueueEntries.Where(qe => qe.Status == "Waiting" || qe.Status == "Notified"))
@@ -71,9 +62,7 @@ namespace HiveQ.Controllers
                 return RedirectToAction("Index");
             }
 
-            // Sort queue entries by position
             ViewBag.QueueEntries = queue.QueueEntries.OrderBy(qe => qe.PositionNumber).ToList();
-
             return View(queue);
         }
 
@@ -82,26 +71,16 @@ namespace HiveQ.Controllers
         [Authorize]
         public async Task<IActionResult> CallNext(int id)
         {
-            var userEmail = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Email)?.Value;
-            if (string.IsNullOrEmpty(userEmail))
-            {
-                return Json(new { success = false, message = "User authentication error." });
-            }
-
-            var currentUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
+            var currentUser = await GetAuthenticatedUserAsync();
             if (currentUser == null)
-            {
-                return Json(new { success = false, message = "User not found." });
-            }
+                return Json(new { success = false, message = "User authentication error." });
 
             var queue = await _context.Queues
                 .Include(q => q.QueueEntries)
                 .FirstOrDefaultAsync(q => q.QueueId == id && q.UserId == currentUser.UserId);
 
             if (queue == null)
-            {
                 return Json(new { success = false, message = "Queue not found." });
-            }
 
             // Find the first person waiting
             var nextEntry = queue.QueueEntries
@@ -129,17 +108,9 @@ namespace HiveQ.Controllers
         [Authorize]
         public async Task<IActionResult> MarkServed(int queueEntryId)
         {
-            var userEmail = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Email)?.Value;
-            if (string.IsNullOrEmpty(userEmail))
-            {
-                return Json(new { success = false, message = "User authentication error." });
-            }
-
-            var currentUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
+            var currentUser = await GetAuthenticatedUserAsync();
             if (currentUser == null)
-            {
-                return Json(new { success = false, message = "User not found." });
-            }
+                return Json(new { success = false, message = "User authentication error." });
 
             var queueEntry = await _context.QueueEntries
                 .Include(qe => qe.Queue)
@@ -147,9 +118,7 @@ namespace HiveQ.Controllers
                 .FirstOrDefaultAsync(qe => qe.QueueEntryId == queueEntryId && qe.Queue.UserId == currentUser.UserId);
 
             if (queueEntry == null)
-            {
                 return Json(new { success = false, message = "Queue entry not found." });
-            }
 
             // Mark as served
             queueEntry.Status = "Served";
@@ -183,19 +152,9 @@ namespace HiveQ.Controllers
         [Authorize]
         public async Task<IActionResult> DeleteQueue(int id)
         {
-            var userEmail = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Email)?.Value;
-            if (string.IsNullOrEmpty(userEmail))
-            {
-                TempData["Error"] = "User authentication error.";
-                return RedirectToAction("Index");
-            }
-
-            var currentUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
+            var currentUser = await GetAuthenticatedUserAsync();
             if (currentUser == null)
-            {
-                TempData["Error"] = "User not found.";
                 return RedirectToAction("Index");
-            }
 
             var queue = await _context.Queues
                 .FirstOrDefaultAsync(q => q.QueueId == id && q.UserId == currentUser.UserId);
@@ -206,7 +165,6 @@ namespace HiveQ.Controllers
                 queue.Status = "Closed";
                 queue.UpdatedAt = DateTime.UtcNow;
                 await _context.SaveChangesAsync();
-
                 TempData["Message"] = "Queue deleted successfully";
             }
 
@@ -217,19 +175,9 @@ namespace HiveQ.Controllers
         [Authorize]
         public async Task<IActionResult> EditQueue(int id)
         {
-            var userEmail = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Email)?.Value;
-            if (string.IsNullOrEmpty(userEmail))
-            {
-                TempData["Error"] = "User authentication error.";
-                return RedirectToAction("Index");
-            }
-
-            var currentUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
+            var currentUser = await GetAuthenticatedUserAsync();
             if (currentUser == null)
-            {
-                TempData["Error"] = "User not found.";
                 return RedirectToAction("Index");
-            }
 
             var queue = await _context.Queues
                 .FirstOrDefaultAsync(q => q.QueueId == id && q.UserId == currentUser.UserId);
@@ -248,19 +196,9 @@ namespace HiveQ.Controllers
         [Authorize]
         public async Task<IActionResult> EditQueue(int id, string queueName, string? description, int maxCapacity, int estimatedTime, string status)
         {
-            var userEmail = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Email)?.Value;
-            if (string.IsNullOrEmpty(userEmail))
-            {
-                TempData["Error"] = "User authentication error.";
-                return RedirectToAction("Index");
-            }
-
-            var currentUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail);
+            var currentUser = await GetAuthenticatedUserAsync();
             if (currentUser == null)
-            {
-                TempData["Error"] = "User not found.";
                 return RedirectToAction("Index");
-            }
 
             var queue = await _context.Queues
                 .FirstOrDefaultAsync(q => q.QueueId == id && q.UserId == currentUser.UserId);

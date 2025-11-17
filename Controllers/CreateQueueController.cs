@@ -1,16 +1,22 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using HiveQ.Models;
+using HiveQ.Services;
+using QRCoder;
+using System.Drawing;
+using System.Drawing.Imaging;
 
 namespace HiveQ.Controllers
 {
     public class CreateQueueController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly AuthenticationService _authService;
 
-        public CreateQueueController(ApplicationDbContext context)
+        public CreateQueueController(ApplicationDbContext context, AuthenticationService authService)
         {
             _context = context;
+            _authService = authService;
         }
 
         // GET: CreateQueue
@@ -23,7 +29,7 @@ namespace HiveQ.Controllers
         // POST: CreateQueue
         [HttpPost]
         [Authorize]
-        public IActionResult Index(string queueName, string? description, int? maxCapacity, 
+        public async Task<IActionResult> Index(string queueName, string? description, int? maxCapacity, 
             int estimatedTime, string status, bool emailNotifications, bool smsNotifications)
         {
             try
@@ -41,22 +47,13 @@ namespace HiveQ.Controllers
                     return View();
                 }
 
-                // Get actual logged-in user ID from authentication
-                var userEmail = User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Email)?.Value;
-                if (string.IsNullOrEmpty(userEmail))
+                // Get current user
+                var currentUser = await _authService.GetCurrentUserAsync(User);
+                if (currentUser == null)
                 {
                     TempData["Error"] = "User authentication error. Please log in again.";
                     return RedirectToAction("Login", "Account");
                 }
-
-                var currentUser = _context.Users.FirstOrDefault(u => u.Email == userEmail);
-                if (currentUser == null)
-                {
-                    TempData["Error"] = "User not found. Please log in again.";
-                    return RedirectToAction("Login", "Account");
-                }
-
-                int userId = currentUser.UserId;
 
                 // Generate unique QR code data (using queue name + timestamp)
                 string qrCodeData = $"{queueName}_{DateTime.UtcNow.Ticks}";
@@ -64,7 +61,7 @@ namespace HiveQ.Controllers
                 // Create new queue object
                 var newQueue = new Queue
                 {
-                    UserId = userId,
+                    UserId = currentUser.UserId,
                     QueueName = queueName,
                     Description = description,
                     QRCodeData = qrCodeData,
@@ -103,10 +100,38 @@ namespace HiveQ.Controllers
         public IActionResult CreateQueueConfirmation()
         {
             // Check if we have the necessary data from queue creation
-            if (TempData["QueueId"] == null)
+            if (TempData["QueueId"] == null || TempData["QRCodeData"] == null)
             {
                 return RedirectToAction("Index");
             }
+
+            // Generate QR code for the join URL
+            string qrCodeData = TempData["QRCodeData"]?.ToString() ?? "";
+            string joinUrl = $"{Request.Scheme}://{Request.Host}/JoinQueue?code={qrCodeData}";
+            
+            // Generate QR code image
+            using (QRCodeGenerator qrGenerator = new QRCodeGenerator())
+            {
+                QRCodeData qrCodeDataObj = qrGenerator.CreateQrCode(joinUrl, QRCodeGenerator.ECCLevel.Q);
+                using (QRCode qrCode = new QRCode(qrCodeDataObj))
+                {
+                    using (Bitmap qrCodeImage = qrCode.GetGraphic(20))
+                    {
+                        using (MemoryStream ms = new MemoryStream())
+                        {
+                            qrCodeImage.Save(ms, ImageFormat.Png);
+                            byte[] qrCodeBytes = ms.ToArray();
+                            string qrCodeBase64 = Convert.ToBase64String(qrCodeBytes);
+                            ViewBag.QRCodeImage = $"data:image/png;base64,{qrCodeBase64}";
+                        }
+                    }
+                }
+            }
+
+            // Keep data for the view
+            TempData.Keep("QueueName");
+            TempData.Keep("QueueId");
+            TempData.Keep("QRCodeData");
 
             return View();
         }

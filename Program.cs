@@ -1,4 +1,5 @@
 using HiveQ.Models;
+using HiveQ.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,6 +9,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
+
+// Register custom services
+builder.Services.AddScoped<AuthenticationService>();
 
 // Configure SQLite Database with connection pooling and WAL mode
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
