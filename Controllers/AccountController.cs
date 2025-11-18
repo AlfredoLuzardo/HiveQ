@@ -128,6 +128,7 @@ namespace HiveQ.Controllers
 
                     ModelState.Clear();
                     ViewBag.Message = $"{user.FirstName} {user.LastName} registered successfully. Please log in.";    
+                    return RedirectToAction("Login", "Account");
                 }
                 catch (DbUpdateException)
                 {
