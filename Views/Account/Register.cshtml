@@ -28,13 +28,15 @@
 
                     <div class="mb-3">
                         <label for="email" class="form-label">Email Address *</label>
-                        <input type="email" class="form-control" id="email" name="email" placeholder="your@email.com" required />
+                        <input type="email" class="form-control" id="email" name="email" placeholder="your@email.com"
+                            required />
                         <div class="form-text">We'll send queue updates to this email</div>
                     </div>
 
                     <div class="mb-3">
                         <label for="phoneNumber" class="form-label">Phone Number (Optional)</label>
-                        <input type="tel" class="form-control" id="phoneNumber" name="phoneNumber" placeholder="(555) 123-4567" />
+                        <input type="tel" class="form-control" id="phoneNumber" name="phoneNumber"
+                            placeholder="(555) 123-4567" />
                         <div class="form-text">For SMS notifications</div>
                     </div>
 
@@ -49,27 +51,19 @@
 
                     <div class="mb-3">
                         <label for="confirmPassword" class="form-label">Confirm Password *</label>
-                        <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required />
+                        <input type="password" class="form-control" id="confirmPassword" name="confirmPassword"
+                            required />
                     </div>
 
                     <div class="d-grid gap-2">
                         <button type="submit" class="btn btn-primary btn-lg">Create Account</button>
-                        <a asp-controller="Account" asp-action="Login" class="btn btn-outline-secondary">Already have an account? Login</a>
+                        <a asp-controller="Account" asp-action="Login" class="btn btn-outline-secondary">Already have an
+                            account? Login</a>
                     </div>
 
                     <div asp-validation-summary="All" class="text-danger mb-3"></div>
                 </form>
             </div>
-        </div>
-
-        <div class="alert alert-info mt-4">
-            <h5>Why Create an Account?</h5>
-            <ul class="mb-0">
-                <li>Track all your queues in one place</li>
-                <li>Receive notifications about your position</li>
-                <li>View your queue history</li>
-                <li>Join queues faster next time</li>
-            </ul>
         </div>
     </div>
 </div>
