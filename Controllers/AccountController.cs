@@ -17,8 +17,7 @@ namespace HiveQ.Controllers
     /// </remarks>
     /// <param name="signInManager"></param>
     /// <param name="userManager"></param>
-    public class AccountController(
-        ApplicationDbContext context) : Controller
+    public class AccountController(ApplicationDbContext context) : Controller
     {
         private readonly ApplicationDbContext _context = context;
         private readonly PasswordHasher<User> _passwordHasher = new();
@@ -48,7 +47,11 @@ namespace HiveQ.Controllers
 
                 if (user != null)
                 {
-                    var result = _passwordHasher.VerifyHashedPassword(user, user?.PasswordHash ?? "", model.Password);
+                    var result = _passwordHasher.VerifyHashedPassword(
+                        user,
+                        user?.PasswordHash ?? "",
+                        model.Password
+                    );
 
                     if (result == PasswordVerificationResult.Success)
                     {
@@ -57,11 +60,17 @@ namespace HiveQ.Controllers
                             new("FirstName", user.FirstName),
                             new("LastName", user.LastName),
                             new(ClaimTypes.Email, user.Email),
-                            new(ClaimTypes.Role, "User")
+                            new(ClaimTypes.Role, "User"),
                         };
 
-                        var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                        HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+                        var claimsIdentity = new ClaimsIdentity(
+                            claims,
+                            CookieAuthenticationDefaults.AuthenticationScheme
+                        );
+                        HttpContext.SignInAsync(
+                            CookieAuthenticationDefaults.AuthenticationScheme,
+                            new ClaimsPrincipal(claimsIdentity)
+                        );
 
                         ViewData["Email"] = user.Email;
 
@@ -127,16 +136,18 @@ namespace HiveQ.Controllers
                     _context.SaveChanges();
 
                     ModelState.Clear();
-                    ViewBag.Message = $"{user.FirstName} {user.LastName} registered successfully. Please log in.";    
+                    ViewBag.Message =
+                        $"{user.FirstName} {user.LastName} registered successfully. Please log in.";
                     return RedirectToAction("Login", "Account");
                 }
                 catch (DbUpdateException)
                 {
-                    ModelState.AddModelError(string.Empty, "An error occurred while registering the user.");
+                    ModelState.AddModelError(
+                        string.Empty,
+                        "An error occurred while registering the user."
+                    );
                     return View(model);
                 }
-
-                return View();
             }
             return View(model);
         }
