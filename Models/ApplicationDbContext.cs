@@ -5,11 +5,15 @@ namespace HiveQ.Models
     public class ApplicationDbContext : DbContext
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-            : base(options)
+        : base(options)
+        {
+        // Only run SQLite-specific commands if we are actually using SQLite
+        if (Database.IsSqlite()) 
         {
             // Enable WAL mode for better concurrency
             Database.ExecuteSqlRaw("PRAGMA journal_mode=WAL;");
             Database.ExecuteSqlRaw("PRAGMA busy_timeout=5000;");
+        }
         }
 
         // DbSets for all entities
@@ -81,7 +85,7 @@ namespace HiveQ.Models
                 .HasOne(qh => qh.Queue)
                 .WithMany(q => q.QueueHistories)
                 .HasForeignKey(qh => qh.QueueId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict); 
 
             // User -> QueueHistory (One-to-Many)
             modelBuilder.Entity<QueueHistory>()

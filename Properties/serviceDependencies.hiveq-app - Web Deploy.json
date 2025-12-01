@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "mssql1": {
+      "serviceConnectorResourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('serviceConnectorResourceGroupName')]/providers/Microsoft.Web/sites/hiveq-app/providers/Microsoft.ServiceLinker/linkers/ConnectionStringsDefaultConnection1_4D855E0EDF",
+      "secretStore": "AzureAppSettings",
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Sql/servers/hiveq/databases/hiveq",
+      "type": "mssql.azure",
+      "connectionId": "ConnectionStrings:DefaultConnection1",
+      "dynamicId": null
+    }
+  }
+}
