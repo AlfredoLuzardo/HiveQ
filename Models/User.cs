@@ -37,6 +37,11 @@ namespace HiveQ.Models
 
         public bool IsActive { get; set; } = true;
 
+        public byte[]? ProfilePicture { get; set; }
+        
+        [StringLength(100)]
+        public string? ProfilePictureContentType { get; set; }
+
         public ICollection<QueueEntry> QueueEntries { get; set; } = new List<QueueEntry>();
         public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
         public ICollection<QueueHistory> QueueHistories { get; set; } = new List<QueueHistory>();

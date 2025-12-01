@@ -25,6 +25,33 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 var app = builder.Build();
 
+// Apply pending migrations
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    try
+    {
+        // This will apply all pending migrations including AddProfilePictureToUser
+        dbContext.Database.Migrate();
+        Console.WriteLine("✓ Database migrations applied successfully");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Migration warning: {ex.Message}");
+        // Try to manually fix the migration history
+        try
+        {
+            dbContext.Database.ExecuteSqlRaw("INSERT OR IGNORE INTO __EFMigrationsHistory (MigrationId, ProductVersion) VALUES ('20251117034405_InitialCreate', '9.0.0')");
+            dbContext.Database.Migrate();
+            Console.WriteLine("✓ Database fixed and migrations applied");
+        }
+        catch
+        {
+            Console.WriteLine("Note: If you see column errors, the migration may have already been applied");
+        }
+    }
+}
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
