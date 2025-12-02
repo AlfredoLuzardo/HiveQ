@@ -18,6 +18,8 @@ namespace HiveQ.Models
 
         public int PositionNumber { get; set; }
 
+        public int PartySize { get; set; } = 1; // Number of people in this party
+
         [Required]
         [StringLength(50)]
         public string Status { get; set; } = "Waiting"; // Waiting, Notified, Served, Cancelled, NoShow

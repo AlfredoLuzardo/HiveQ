@@ -33,6 +33,8 @@ namespace HiveQ.Models
 
         public int EstimatedWaitTimePerPerson { get; set; } = 5; // in minutes
 
+        public int MaxPartySize { get; set; } = 1; // Maximum people allowed per queue position
+
         public int CurrentQueueSize { get; set; } = 0;
 
         public int TotalServedToday { get; set; } = 0;

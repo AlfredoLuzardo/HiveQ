@@ -58,7 +58,7 @@ namespace HiveQ.Controllers
                     return RedirectToAction("Index", "Home");
                 }
 
-                // If user is authenticated, check ownership first, then auto-join
+                // If user is authenticated, check ownership and existing entries
                 if (User.Identity?.IsAuthenticated == true)
                 {
                     var currentUser = await _authService.GetCurrentUserAsync(User);
@@ -80,8 +80,12 @@ namespace HiveQ.Controllers
                         if (existingEntry != null)
                             return RedirectToAction("ViewPosition", new { queueEntryId = existingEntry.QueueEntryId });
 
-                        // Auto-join the authenticated user
-                        return await JoinAuthenticatedUser(queue, currentUser);
+                        // Show the form to authenticated users too (so they can choose party size)
+                        ViewBag.IsAuthenticated = true;
+                        ViewBag.UserFirstName = currentUser.FirstName;
+                        ViewBag.UserLastName = currentUser.LastName;
+                        ViewBag.UserEmail = currentUser.Email;
+                        ViewBag.UserPhone = currentUser.PhoneNumber;
                     }
                 }
 
@@ -91,6 +95,7 @@ namespace HiveQ.Controllers
                 ViewBag.Description = queue.Description;
                 ViewBag.CurrentSize = queue.CurrentQueueSize;
                 ViewBag.EstimatedWaitTime = queue.CurrentQueueSize * queue.EstimatedWaitTimePerPerson;
+                ViewBag.MaxPartySize = queue.MaxPartySize;
 
                 return View();
             }
@@ -103,7 +108,7 @@ namespace HiveQ.Controllers
 
         // POST: JoinQueue/Join
         [HttpPost]
-        public async Task<IActionResult> Join(int queueId, string? firstName, string? lastName, 
+        public async Task<IActionResult> Join(int queueId, int partySize, string? firstName, string? lastName, 
             string? email, string? phoneNumber, string? notificationPreference)
         {
             try
@@ -131,7 +136,15 @@ namespace HiveQ.Controllers
                             TempData["Error"] = "You cannot join your own queue. Use Manage Queues to manage it.";
                             return RedirectToAction("Index", new { code = queue.QRCodeData });
                         }
-                        return await JoinAuthenticatedUser(queue, currentUser);
+                        
+                        // Validate party size for authenticated users
+                        if (partySize < 1 || partySize > queue.MaxPartySize)
+                        {
+                            TempData["Error"] = $"Party size must be between 1 and {queue.MaxPartySize}.";
+                            return RedirectToAction("Index", new { code = queue.QRCodeData });
+                        }
+                        
+                        return await JoinAuthenticatedUser(queue, currentUser, partySize);
                     }
                 }
 
@@ -139,6 +152,13 @@ namespace HiveQ.Controllers
                 if (string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName))
                 {
                     TempData["Error"] = "First name and last name are required.";
+                    return RedirectToAction("Index", new { code = queue.QRCodeData });
+                }
+
+                // Validate party size
+                if (partySize < 1 || partySize > queue.MaxPartySize)
+                {
+                    TempData["Error"] = $"Party size must be between 1 and {queue.MaxPartySize}.";
                     return RedirectToAction("Index", new { code = queue.QRCodeData });
                 }
 
@@ -206,6 +226,7 @@ namespace HiveQ.Controllers
                     QueueId = queueId,
                     UserId = user.UserId,
                     PositionNumber = positionNumber,
+                    PartySize = partySize,
                     Status = "Waiting",
                     JoinedAt = DateTime.UtcNow,
                     EstimatedWaitTime = estimatedWaitTime,
@@ -375,7 +396,7 @@ namespace HiveQ.Controllers
         }
 
         // Helper method to join authenticated users
-        private async Task<IActionResult> JoinAuthenticatedUser(Queue queue, User user)
+        private async Task<IActionResult> JoinAuthenticatedUser(Queue queue, User user, int partySize = 1)
         {
             try
             {
@@ -401,6 +422,7 @@ namespace HiveQ.Controllers
                     QueueId = queue.QueueId,
                     UserId = user.UserId,
                     PositionNumber = positionNumber,
+                    PartySize = partySize,
                     Status = "Waiting",
                     JoinedAt = DateTime.UtcNow,
                     EstimatedWaitTime = estimatedWaitTime,

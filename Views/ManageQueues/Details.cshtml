@@ -89,6 +89,7 @@
                                 <tr>
                                     <th>Position</th>
                                     <th>Name</th>
+                                    <th>Party Size</th>
                                     <th>Contact</th>
                                     <th>Joined At</th>
                                     <th>Status</th>
@@ -113,6 +114,10 @@
                                             </strong>
                                         </td>
                                         <td>@entry.User.FirstName @entry.User.LastName</td>
+                                        <td>
+                                            <span class="badge bg-secondary">@entry.PartySize</span>
+                                            <small class="text-muted">@(entry.PartySize == 1 ? "person" : "people")</small>
+                                        </td>
                                         <td>
                                             @if (!string.IsNullOrEmpty(entry.User.Email) && !entry.User.Email.Contains("@hiveq.local"))
                                             {

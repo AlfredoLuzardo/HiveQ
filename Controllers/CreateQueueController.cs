@@ -30,7 +30,7 @@ namespace HiveQ.Controllers
         [HttpPost]
         [Authorize]
         public async Task<IActionResult> Index(string queueName, string? description, int? maxCapacity, 
-            int estimatedTime, string status, bool emailNotifications, bool smsNotifications)
+            int estimatedTime, int maxPartySize, string status, bool emailNotifications, bool smsNotifications)
         {
             try
             {
@@ -44,6 +44,12 @@ namespace HiveQ.Controllers
                 if (estimatedTime <= 0)
                 {
                     TempData["Error"] = "Estimated time per person must be greater than 0.";
+                    return View();
+                }
+
+                if (maxPartySize <= 0 || maxPartySize > 50)
+                {
+                    TempData["Error"] = "Maximum party size must be between 1 and 50.";
                     return View();
                 }
 
@@ -68,6 +74,7 @@ namespace HiveQ.Controllers
                     Status = status ?? "Open",
                     MaxCapacity = maxCapacity ?? 100,
                     EstimatedWaitTimePerPerson = estimatedTime,
+                    MaxPartySize = maxPartySize,
                     CurrentQueueSize = 0,
                     TotalServedToday = 0,
                     CreatedAt = DateTime.UtcNow,

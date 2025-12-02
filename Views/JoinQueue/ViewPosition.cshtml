@@ -141,6 +141,7 @@ else
             <div class="card-body">
                 <h6 class="card-title">Your Information</h6>
                 <p class="mb-1"><strong>Name:</strong> @queueEntry?.User.FirstName @queueEntry?.User.LastName</p>
+                <p class="mb-1"><strong>Party Size:</strong> @queueEntry?.PartySize @(queueEntry?.PartySize == 1 ? "person" : "people")</p>
                 @if (!string.IsNullOrEmpty(queueEntry?.User.Email) && !queueEntry.User.Email.Contains("@hiveq.local"))
                 {
                     <p class="mb-1"><strong>Email:</strong> @queueEntry.User.Email</p>
