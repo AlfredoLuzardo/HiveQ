@@ -1,7 +1,10 @@
+using DotNetEnv;
 using HiveQ.Models;
 using HiveQ.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+
+Env.Load(); // Load environment variables from .env file
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,16 +15,23 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 
 // Register custom services
 builder.Services.AddScoped<AuthenticationService>();
+builder.Services.AddScoped<ISmsService, SmsService>();
 
 // Configure SQLite Database with connection pooling and WAL mode
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-{
-    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-    options.UseSqlite(connectionString, sqliteOptions =>
+builder.Services.AddDbContext<ApplicationDbContext>(
+    options =>
     {
-        sqliteOptions.CommandTimeout(30);
-    });
-}, ServiceLifetime.Scoped);
+        var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+        options.UseSqlite(
+            connectionString,
+            sqliteOptions =>
+            {
+                sqliteOptions.CommandTimeout(30);
+            }
+        );
+    },
+    ServiceLifetime.Scoped
+);
 
 var app = builder.Build();
 
@@ -41,10 +51,7 @@ app.UseAuthorization();
 
 app.MapStaticAssets();
 
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
+app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
-
 
 app.Run();
