@@ -11,7 +11,8 @@ namespace HiveQ.Services
 
         public GuestUserCleanupService(
             IServiceProvider serviceProvider,
-            ILogger<GuestUserCleanupService> logger)
+            ILogger<GuestUserCleanupService> logger
+        )
         {
             _serviceProvider = serviceProvider;
             _logger = logger;
@@ -42,21 +43,27 @@ namespace HiveQ.Services
             var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
             // Find guest users with no active queue entries
-            var inactiveGuestUsers = await context.Users
-                .Where(u => u.PasswordHash == "GUEST_USER")
-                .Where(u => !context.QueueEntries
-                    .Any(qe => qe.UserId == u.UserId && 
-                              (qe.Status == "Waiting" || qe.Status == "Notified")))
+            var inactiveGuestUsers = await context
+                .Users.Where(u => u.PasswordHash == "GUEST_USER")
+                .Where(u =>
+                    !context.QueueEntries.Any(qe =>
+                        qe.UserId == u.UserId && (qe.Status == "Waiting" || qe.Status == "Notified")
+                    )
+                )
                 .ToListAsync();
 
             if (inactiveGuestUsers.Any())
             {
-                _logger.LogInformation($"Cleaning up {inactiveGuestUsers.Count} inactive guest users.");
-                
+                _logger.LogInformation(
+                    $"Cleaning up {inactiveGuestUsers.Count} inactive guest users."
+                );
+
                 context.Users.RemoveRange(inactiveGuestUsers);
                 await context.SaveChangesAsync();
 
-                _logger.LogInformation($"Successfully cleaned up {inactiveGuestUsers.Count} guest users.");
+                _logger.LogInformation(
+                    $"Successfully cleaned up {inactiveGuestUsers.Count} guest users."
+                );
             }
             else
             {

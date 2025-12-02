@@ -1,7 +1,10 @@
+using DotNetEnv;
 using HiveQ.Models;
 using HiveQ.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+
+Env.Load(); // Load environment variables from .env file
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,10 +13,14 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
 
-builder.Services.AddScoped<HiveQ.Services.IWaitTimePredictionService, HiveQ.Services.WaitTimePredictionService>();
+builder.Services.AddScoped<
+    HiveQ.Services.IWaitTimePredictionService,
+    HiveQ.Services.WaitTimePredictionService
+>();
 
 // Register custom services
 builder.Services.AddScoped<AuthenticationService>();
+builder.Services.AddScoped<ISmsService, SmsService>();
 
 // Configure SQLite Database with connection pooling and WAL mode
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -22,13 +29,15 @@ if (builder.Environment.IsDevelopment())
 {
     // Use SQLite locally for development
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseSqlite(connectionString));
+        options.UseSqlite(connectionString)
+    );
 }
 else
 {
     // Use SQL Server in Production (Azure)
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseSqlServer(connectionString));
+        options.UseSqlServer(connectionString)
+    );
 }
 
 var app = builder.Build();
@@ -49,13 +58,17 @@ using (var scope = app.Services.CreateScope())
         // Try to manually fix the migration history
         try
         {
-            dbContext.Database.ExecuteSqlRaw("INSERT OR IGNORE INTO __EFMigrationsHistory (MigrationId, ProductVersion) VALUES ('20251117034405_InitialCreate', '9.0.0')");
+            dbContext.Database.ExecuteSqlRaw(
+                "INSERT OR IGNORE INTO __EFMigrationsHistory (MigrationId, ProductVersion) VALUES ('20251117034405_InitialCreate', '9.0.0')"
+            );
             dbContext.Database.Migrate();
             Console.WriteLine("✓ Database fixed and migrations applied");
         }
         catch
         {
-            Console.WriteLine("Note: If you see column errors, the migration may have already been applied");
+            Console.WriteLine(
+                "Note: If you see column errors, the migration may have already been applied"
+            );
         }
     }
 }
@@ -76,11 +89,8 @@ app.UseAuthorization();
 
 app.MapStaticAssets();
 
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
+app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
-
 
 using (var scope = app.Services.CreateScope())
 {

@@ -22,13 +22,16 @@ namespace HiveQ.Controllers
             await _predictionService.UpdateAllQueueWaitTimesAsync(queueId);
             return Ok(new { message = $"Wait times updated for queue {queueId}" });
         }
-        
+
         // Tool: get_prediction
         // Description: Gets a specific prediction for a position without saving it
         [HttpGet("predict/{queueId}/{position}")]
         public async Task<IActionResult> GetPrediction(int queueId, int position)
         {
-            var minutes = await _predictionService.CalculateEstimatedWaitTimeAsync(queueId, position);
+            var minutes = await _predictionService.CalculateEstimatedWaitTimeAsync(
+                queueId,
+                position
+            );
             return Ok(new { estimatedMinutes = minutes });
         }
     }

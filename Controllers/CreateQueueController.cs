@@ -1,10 +1,10 @@
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using HiveQ.Models;
-using HiveQ.Services;
-using QRCoder;
 using System.Drawing;
 using System.Drawing.Imaging;
+using HiveQ.Models;
+using HiveQ.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using QRCoder;
 
 namespace HiveQ.Controllers
 {
@@ -13,7 +13,10 @@ namespace HiveQ.Controllers
         private readonly ApplicationDbContext _context;
         private readonly AuthenticationService _authService;
 
-        public CreateQueueController(ApplicationDbContext context, AuthenticationService authService)
+        public CreateQueueController(
+            ApplicationDbContext context,
+            AuthenticationService authService
+        )
         {
             _context = context;
             _authService = authService;
@@ -29,8 +32,16 @@ namespace HiveQ.Controllers
         // POST: CreateQueue
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> Index(string queueName, string? description, int? maxCapacity, 
-            int estimatedTime, int maxPartySize, string status, bool emailNotifications, bool smsNotifications)
+        public async Task<IActionResult> Index(
+            string queueName,
+            string? description,
+            int? maxCapacity,
+            int estimatedTime,
+            int maxPartySize,
+            string status,
+            bool emailNotifications,
+            bool smsNotifications
+        )
         {
             try
             {
@@ -79,7 +90,7 @@ namespace HiveQ.Controllers
                     TotalServedToday = 0,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow,
-                    IsActive = true
+                    IsActive = true,
                 };
 
                 // Save to database
@@ -115,11 +126,14 @@ namespace HiveQ.Controllers
             // Generate QR code for the join URL
             string qrCodeData = TempData["QRCodeData"]?.ToString() ?? "";
             string joinUrl = $"{Request.Scheme}://{Request.Host}/JoinQueue?code={qrCodeData}";
-            
+
             // Generate QR code image
             using (QRCodeGenerator qrGenerator = new QRCodeGenerator())
             {
-                QRCodeData qrCodeDataObj = qrGenerator.CreateQrCode(joinUrl, QRCodeGenerator.ECCLevel.Q);
+                QRCodeData qrCodeDataObj = qrGenerator.CreateQrCode(
+                    joinUrl,
+                    QRCodeGenerator.ECCLevel.Q
+                );
                 using (QRCode qrCode = new QRCode(qrCodeDataObj))
                 {
                     using (Bitmap qrCodeImage = qrCode.GetGraphic(20))

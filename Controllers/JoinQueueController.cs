@@ -1,7 +1,7 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using HiveQ.Models;
 using HiveQ.Services;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace HiveQ.Controllers
 {
@@ -28,8 +28,8 @@ namespace HiveQ.Controllers
                 // Find queue by QR code only (security measure)
                 if (!string.IsNullOrEmpty(code))
                 {
-                    queue = await _context.Queues
-                        .Include(q => q.QueueEntries)
+                    queue = await _context
+                        .Queues.Include(q => q.QueueEntries)
                         .FirstOrDefaultAsync(q => q.QRCodeData == code && q.IsActive);
                 }
                 else
@@ -47,14 +47,16 @@ namespace HiveQ.Controllers
                 // Check if queue is at capacity
                 if (queue.CurrentQueueSize >= queue.MaxCapacity)
                 {
-                    TempData["Error"] = "This queue is currently at full capacity. Please try again later.";
+                    TempData["Error"] =
+                        "This queue is currently at full capacity. Please try again later.";
                     return RedirectToAction("Index", "Home");
                 }
 
                 // Check if queue is paused or closed
                 if (queue.Status == "Paused" || queue.Status == "Closed")
                 {
-                    TempData["Error"] = $"This queue is currently {queue.Status.ToLower()}. Please check back later.";
+                    TempData["Error"] =
+                        $"This queue is currently {queue.Status.ToLower()}. Please check back later.";
                     return RedirectToAction("Index", "Home");
                 }
 
@@ -67,18 +69,23 @@ namespace HiveQ.Controllers
                         // Prevent queue owner from joining their own queue
                         if (queue.UserId == currentUser.UserId)
                         {
-                            TempData["Error"] = "You cannot join your own queue. Use Manage Queues to manage it.";
+                            TempData["Error"] =
+                                "You cannot join your own queue. Use Manage Queues to manage it.";
                             return RedirectToAction("Index", "Home");
                         }
 
                         // Check if user is already in this queue
-                        var existingEntry = await _context.QueueEntries
-                            .FirstOrDefaultAsync(qe => qe.QueueId == queue.QueueId && 
-                                                      qe.UserId == currentUser.UserId && 
-                                                      (qe.Status == "Waiting" || qe.Status == "Notified"));
+                        var existingEntry = await _context.QueueEntries.FirstOrDefaultAsync(qe =>
+                            qe.QueueId == queue.QueueId
+                            && qe.UserId == currentUser.UserId
+                            && (qe.Status == "Waiting" || qe.Status == "Notified")
+                        );
 
                         if (existingEntry != null)
-                            return RedirectToAction("ViewPosition", new { queueEntryId = existingEntry.QueueEntryId });
+                            return RedirectToAction(
+                                "ViewPosition",
+                                new { queueEntryId = existingEntry.QueueEntryId }
+                            );
 
                         // Show the form to authenticated users too (so they can choose party size)
                         ViewBag.IsAuthenticated = true;
@@ -94,7 +101,8 @@ namespace HiveQ.Controllers
                 ViewBag.QueueName = queue.QueueName;
                 ViewBag.Description = queue.Description;
                 ViewBag.CurrentSize = queue.CurrentQueueSize;
-                ViewBag.EstimatedWaitTime = queue.CurrentQueueSize * queue.EstimatedWaitTimePerPerson;
+                ViewBag.EstimatedWaitTime =
+                    queue.CurrentQueueSize * queue.EstimatedWaitTimePerPerson;
                 ViewBag.MaxPartySize = queue.MaxPartySize;
 
                 return View();
@@ -108,14 +116,21 @@ namespace HiveQ.Controllers
 
         // POST: JoinQueue/Join
         [HttpPost]
-        public async Task<IActionResult> Join(int queueId, int partySize, string? firstName, string? lastName, 
-            string? email, string? phoneNumber, string? notificationPreference)
+        public async Task<IActionResult> Join(
+            int queueId,
+            int partySize,
+            string? firstName,
+            string? lastName,
+            string? email,
+            string? phoneNumber,
+            string? notificationPreference
+        )
         {
             try
             {
                 // Fetch queue first
-                var queue = await _context.Queues
-                    .Include(q => q.QueueEntries)
+                var queue = await _context
+                    .Queues.Include(q => q.QueueEntries)
                     .FirstOrDefaultAsync(q => q.QueueId == queueId && q.IsActive);
 
                 if (queue == null)
@@ -133,17 +148,19 @@ namespace HiveQ.Controllers
                         // Prevent queue owner from joining their own queue
                         if (queue.UserId == currentUser.UserId)
                         {
-                            TempData["Error"] = "You cannot join your own queue. Use Manage Queues to manage it.";
+                            TempData["Error"] =
+                                "You cannot join your own queue. Use Manage Queues to manage it.";
                             return RedirectToAction("Index", new { code = queue.QRCodeData });
                         }
-                        
+
                         // Validate party size for authenticated users
                         if (partySize < 1 || partySize > queue.MaxPartySize)
                         {
-                            TempData["Error"] = $"Party size must be between 1 and {queue.MaxPartySize}.";
+                            TempData["Error"] =
+                                $"Party size must be between 1 and {queue.MaxPartySize}.";
                             return RedirectToAction("Index", new { code = queue.QRCodeData });
                         }
-                        
+
                         return await JoinAuthenticatedUser(queue, currentUser, partySize);
                     }
                 }
@@ -171,8 +188,10 @@ namespace HiveQ.Controllers
                     return RedirectToAction("Index", new { code = queue.QRCodeData });
                 }
 
-                if ((notificationPreference == "SMS" || notificationPreference == "Both") 
-                    && string.IsNullOrWhiteSpace(phoneNumber))
+                if (
+                    (notificationPreference == "SMS" || notificationPreference == "Both")
+                    && string.IsNullOrWhiteSpace(phoneNumber)
+                )
                 {
                     TempData["Error"] = "Phone number is required for SMS notifications.";
                     return RedirectToAction("Index", new { code = queue.QRCodeData });
@@ -188,7 +207,7 @@ namespace HiveQ.Controllers
                 // Create or find guest user
                 User? user;
                 var emailToCheck = email?.ToLower().Trim() ?? $"guest_{Guid.NewGuid()}@hiveq.local";
-                
+
                 // Check if user already exists (for registered users or returning guests)
                 user = await _context.Users.FirstOrDefaultAsync(u => u.Email == emailToCheck);
 
@@ -212,10 +231,11 @@ namespace HiveQ.Controllers
                 }
 
                 // Calculate position number (next available position)
-                int positionNumber = queue.QueueEntries
-                    .Where(qe => qe.Status == "Waiting" || qe.Status == "Notified")
-                    .DefaultIfEmpty()
-                    .Max(qe => qe?.PositionNumber ?? 0) + 1;
+                int positionNumber =
+                    queue
+                        .QueueEntries.Where(qe => qe.Status == "Waiting" || qe.Status == "Notified")
+                        .DefaultIfEmpty()
+                        .Max(qe => qe?.PositionNumber ?? 0) + 1;
 
                 // Calculate estimated wait time
                 int estimatedWaitTime = (positionNumber - 1) * queue.EstimatedWaitTimePerPerson;
@@ -231,7 +251,7 @@ namespace HiveQ.Controllers
                     JoinedAt = DateTime.UtcNow,
                     EstimatedWaitTime = estimatedWaitTime,
                     NotificationPreference = notificationPreference,
-                    Notes = string.IsNullOrWhiteSpace(email) ? "Guest user (no email)" : null
+                    Notes = string.IsNullOrWhiteSpace(email) ? "Guest user (no email)" : null,
                 };
 
                 _context.QueueEntries.Add(queueEntry);
@@ -244,7 +264,10 @@ namespace HiveQ.Controllers
 
                 // Redirect to position view
                 TempData["Message"] = "Successfully joined the queue!";
-                return RedirectToAction("ViewPosition", new { queueEntryId = queueEntry.QueueEntryId });
+                return RedirectToAction(
+                    "ViewPosition",
+                    new { queueEntryId = queueEntry.QueueEntryId }
+                );
             }
             catch (Exception)
             {
@@ -258,8 +281,8 @@ namespace HiveQ.Controllers
         {
             try
             {
-                var queueEntry = await _context.QueueEntries
-                    .Include(qe => qe.Queue)
+                var queueEntry = await _context
+                    .QueueEntries.Include(qe => qe.Queue)
                     .Include(qe => qe.User)
                     .FirstOrDefaultAsync(qe => qe.QueueEntryId == queueEntryId);
 
@@ -270,10 +293,12 @@ namespace HiveQ.Controllers
                 }
 
                 // Calculate current position (in case people ahead left)
-                var currentPosition = await _context.QueueEntries
-                    .Where(qe => qe.QueueId == queueEntry.QueueId 
+                var currentPosition = await _context
+                    .QueueEntries.Where(qe =>
+                        qe.QueueId == queueEntry.QueueId
                         && (qe.Status == "Waiting" || qe.Status == "Notified")
-                        && qe.PositionNumber <= queueEntry.PositionNumber)
+                        && qe.PositionNumber <= queueEntry.PositionNumber
+                    )
                     .CountAsync();
 
                 var peopleAhead = currentPosition - 1;
@@ -299,12 +324,15 @@ namespace HiveQ.Controllers
         {
             try
             {
-                var queueEntry = await _context.QueueEntries
-                    .Include(qe => qe.Queue)
+                var queueEntry = await _context
+                    .QueueEntries.Include(qe => qe.Queue)
                     .Include(qe => qe.User)
                     .FirstOrDefaultAsync(qe => qe.QueueEntryId == queueEntryId);
 
-                if (queueEntry != null && (queueEntry.Status == "Waiting" || queueEntry.Status == "Notified"))
+                if (
+                    queueEntry != null
+                    && (queueEntry.Status == "Waiting" || queueEntry.Status == "Notified")
+                )
                 {
                     queueEntry.Status = "Cancelled";
                     queueEntry.Queue.CurrentQueueSize--;
@@ -313,10 +341,11 @@ namespace HiveQ.Controllers
                     // Auto-delete guest user if they have no other active queue entries
                     if (queueEntry.User != null && queueEntry.User.PasswordHash == "GUEST_USER")
                     {
-                        var hasOtherActiveEntries = await _context.QueueEntries
-                            .AnyAsync(qe => qe.UserId == queueEntry.UserId &&
-                                           qe.QueueEntryId != queueEntryId &&
-                                           (qe.Status == "Waiting" || qe.Status == "Notified"));
+                        var hasOtherActiveEntries = await _context.QueueEntries.AnyAsync(qe =>
+                            qe.UserId == queueEntry.UserId
+                            && qe.QueueEntryId != queueEntryId
+                            && (qe.Status == "Waiting" || qe.Status == "Notified")
+                        );
 
                         if (!hasOtherActiveEntries)
                         {
@@ -344,17 +373,21 @@ namespace HiveQ.Controllers
         {
             try
             {
-                var queueEntry = await _context.QueueEntries
-                    .Include(qe => qe.Queue)
+                var queueEntry = await _context
+                    .QueueEntries.Include(qe => qe.Queue)
                     .FirstOrDefaultAsync(qe => qe.QueueEntryId == queueEntryId);
 
                 if (queueEntry != null && queueEntry.Status == "Notified")
                 {
                     // Update notes to indicate customer has arrived
-                    queueEntry.Notes = (queueEntry.Notes ?? "") + " | Customer arrived at " + DateTime.UtcNow.ToLocalTime().ToString("h:mm tt");
+                    queueEntry.Notes =
+                        (queueEntry.Notes ?? "")
+                        + " | Customer arrived at "
+                        + DateTime.UtcNow.ToLocalTime().ToString("h:mm tt");
                     await _context.SaveChangesAsync();
 
-                    TempData["Message"] = "Thank you! The staff has been notified that you've arrived.";
+                    TempData["Message"] =
+                        "Thank you! The staff has been notified that you've arrived.";
                 }
 
                 return RedirectToAction("ViewPosition", new { queueEntryId = queueEntryId });
@@ -378,11 +411,13 @@ namespace HiveQ.Controllers
                 if (currentUser == null)
                     return View(new List<QueueEntry>());
 
-                var myEntries = await _context.QueueEntries
-                    .Include(qe => qe.Queue)
+                var myEntries = await _context
+                    .QueueEntries.Include(qe => qe.Queue)
                     .Include(qe => qe.User)
-                    .Where(qe => qe.UserId == currentUser.UserId && 
-                               (qe.Status == "Waiting" || qe.Status == "Notified"))
+                    .Where(qe =>
+                        qe.UserId == currentUser.UserId
+                        && (qe.Status == "Waiting" || qe.Status == "Notified")
+                    )
                     .OrderBy(qe => qe.JoinedAt)
                     .ToListAsync();
 
@@ -396,7 +431,11 @@ namespace HiveQ.Controllers
         }
 
         // Helper method to join authenticated users
-        private async Task<IActionResult> JoinAuthenticatedUser(Queue queue, User user, int partySize = 1)
+        private async Task<IActionResult> JoinAuthenticatedUser(
+            Queue queue,
+            User user,
+            int partySize = 1
+        )
         {
             try
             {
@@ -408,10 +447,11 @@ namespace HiveQ.Controllers
                 }
 
                 // Calculate position number
-                int positionNumber = queue.QueueEntries
-                    .Where(qe => qe.Status == "Waiting" || qe.Status == "Notified")
-                    .DefaultIfEmpty()
-                    .Max(qe => qe?.PositionNumber ?? 0) + 1;
+                int positionNumber =
+                    queue
+                        .QueueEntries.Where(qe => qe.Status == "Waiting" || qe.Status == "Notified")
+                        .DefaultIfEmpty()
+                        .Max(qe => qe?.PositionNumber ?? 0) + 1;
 
                 // Calculate estimated wait time
                 int estimatedWaitTime = (positionNumber - 1) * queue.EstimatedWaitTimePerPerson;
@@ -426,8 +466,11 @@ namespace HiveQ.Controllers
                     Status = "Waiting",
                     JoinedAt = DateTime.UtcNow,
                     EstimatedWaitTime = estimatedWaitTime,
-                    NotificationPreference = !string.IsNullOrEmpty(user.Email) && !user.Email.Contains("@hiveq.local") ? "Email" : "None",
-                    Notes = "Authenticated user"
+                    NotificationPreference =
+                        !string.IsNullOrEmpty(user.Email) && !user.Email.Contains("@hiveq.local")
+                            ? "Email"
+                            : "None",
+                    Notes = "Authenticated user",
                 };
 
                 _context.QueueEntries.Add(queueEntry);
@@ -440,7 +483,10 @@ namespace HiveQ.Controllers
 
                 // Redirect to position view
                 TempData["Message"] = "Successfully joined the queue!";
-                return RedirectToAction("ViewPosition", new { queueEntryId = queueEntry.QueueEntryId });
+                return RedirectToAction(
+                    "ViewPosition",
+                    new { queueEntryId = queueEntry.QueueEntryId }
+                );
             }
             catch (Exception)
             {
