@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.SignalR;
 using HiveQ.Models;
 using HiveQ.Services;
+using HiveQ.Hubs;
 using QRCoder;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -13,11 +15,13 @@ namespace HiveQ.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly AuthenticationService _authService;
+        private readonly IHubContext<QueueHub> _hubContext;
 
-        public ManageQueuesController(ApplicationDbContext context, AuthenticationService authService)
+        public ManageQueuesController(ApplicationDbContext context, AuthenticationService authService, IHubContext<QueueHub> hubContext)
         {
             _context = context;
             _authService = authService;
+            _hubContext = hubContext;
         }
 
         private async Task<User?> GetAuthenticatedUserAsync()
@@ -129,6 +133,10 @@ namespace HiveQ.Controllers
 
             await _context.SaveChangesAsync();
 
+            // Notify all clients about queue update via SignalR
+            await _hubContext.Clients.Group($"Queue_{queue.QueueId}").SendAsync("QueueUpdated", queue.QueueId);
+            await _hubContext.Clients.Group("AllQueues").SendAsync("QueueUpdated", queue.QueueId);
+
             return Json(new { success = true, message = $"Called {nextEntry.User?.FirstName ?? "customer"}!" });
         }
 
@@ -155,6 +163,7 @@ namespace HiveQ.Controllers
             queueEntry.Queue.CurrentQueueSize--;
             queueEntry.Queue.TotalServedToday++;
             queueEntry.Queue.UpdatedAt = DateTime.UtcNow;
+            var queueId = queueEntry.Queue.QueueId;
 
             // Auto-delete guest user if they have no other queue entries
             if (queueEntry.User.PasswordHash == "GUEST_USER")
@@ -172,6 +181,10 @@ namespace HiveQ.Controllers
             }
 
             await _context.SaveChangesAsync();
+
+            // Notify all clients about queue update via SignalR
+            await _hubContext.Clients.Group($"Queue_{queueId}").SendAsync("QueueUpdated", queueId);
+            await _hubContext.Clients.Group("AllQueues").SendAsync("QueueUpdated", queueId);
 
             return Json(new { success = true, message = "Customer marked as served." });
         }
@@ -246,6 +259,10 @@ namespace HiveQ.Controllers
             queue.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
+
+            // Notify all clients about queue update via SignalR
+            await _hubContext.Clients.Group($"Queue_{queue.QueueId}").SendAsync("QueueUpdated", queue.QueueId);
+            await _hubContext.Clients.Group("AllQueues").SendAsync("QueueUpdated", queue.QueueId);
 
             TempData["Message"] = "Queue updated successfully";
             return RedirectToAction("Index");
