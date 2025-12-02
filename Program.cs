@@ -1,6 +1,7 @@
 using DotNetEnv;
 using HiveQ.Models;
 using HiveQ.Services;
+using HiveQ.Hubs;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,6 +12,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+// Add SignalR
+builder.Services.AddSignalR();
+
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
 
 builder.Services.AddScoped<
@@ -20,7 +24,18 @@ builder.Services.AddScoped<
 
 // Register custom services
 builder.Services.AddScoped<AuthenticationService>();
-builder.Services.AddScoped<ISmsService, SmsService>();
+
+// Only register SMS service if Twilio is configured
+var twilioAccountSid = builder.Configuration["Twilio:AccountSid"];
+if (!string.IsNullOrEmpty(twilioAccountSid))
+{
+    builder.Services.AddScoped<ISmsService, SmsService>();
+    Console.WriteLine("✓ SMS Service configured with Twilio");
+}
+else
+{
+    Console.WriteLine("⚠ SMS Service not configured - Twilio credentials missing");
+}
 
 // Configure SQLite Database with connection pooling and WAL mode
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -89,7 +104,12 @@ app.UseAuthorization();
 
 app.MapStaticAssets();
 
-app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}")
+// Map SignalR hub
+app.MapHub<QueueHub>("/queueHub");
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
 using (var scope = app.Services.CreateScope())

@@ -2,9 +2,12 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using HiveQ.Models;
 using HiveQ.Services;
+using HiveQ.Hubs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using QRCoder;
 
 namespace HiveQ.Controllers
@@ -13,20 +16,22 @@ namespace HiveQ.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly AuthenticationService _authService;
-        private readonly ISmsService _smsService;
+        private readonly IHubContext<QueueHub> _hubContext;
         private readonly ILogger<ManageQueuesController> _logger;
+        private readonly ISmsService? _smsService;
 
         public ManageQueuesController(
-            ApplicationDbContext context,
-            AuthenticationService authService,
-            ISmsService smsService,
-            ILogger<ManageQueuesController> logger
-        )
+            ApplicationDbContext context, 
+            AuthenticationService authService, 
+            IHubContext<QueueHub> hubContext,
+            ILogger<ManageQueuesController> logger,
+            ISmsService? smsService = null)
         {
             _context = context;
             _authService = authService;
-            _smsService = smsService;
+            _hubContext = hubContext;
             _logger = logger;
+            _smsService = smsService;
         }
 
         private async Task<User?> GetAuthenticatedUserAsync()
@@ -145,15 +150,11 @@ namespace HiveQ.Controllers
 
             await _context.SaveChangesAsync();
 
-            await NotifyCalled(queue.QueueId);
+            // Notify all clients about queue update via SignalR
+            await _hubContext.Clients.Group($"Queue_{queue.QueueId}").SendAsync("QueueUpdated", queue.QueueId);
+            await _hubContext.Clients.Group("AllQueues").SendAsync("QueueUpdated", queue.QueueId);
 
-            return Json(
-                new
-                {
-                    success = true,
-                    message = $"Called {nextEntry.User?.FirstName ?? "customer"}!",
-                }
-            );
+            return Json(new { success = true, message = $"Called {nextEntry.User?.FirstName ?? "customer"}!" });
         }
 
         // POST: ManageQueues/MarkServed/5
@@ -183,6 +184,7 @@ namespace HiveQ.Controllers
             queueEntry.Queue.CurrentQueueSize--;
             queueEntry.Queue.TotalServedToday++;
             queueEntry.Queue.UpdatedAt = DateTime.UtcNow;
+            var queueId = queueEntry.Queue.QueueId;
 
             await _context.SaveChangesAsync();
 
@@ -203,6 +205,10 @@ namespace HiveQ.Controllers
             }
 
             await _context.SaveChangesAsync();
+
+            // Notify all clients about queue update via SignalR
+            await _hubContext.Clients.Group($"Queue_{queueId}").SendAsync("QueueUpdated", queueId);
+            await _hubContext.Clients.Group("AllQueues").SendAsync("QueueUpdated", queueId);
 
             return Json(new { success = true, message = "Customer marked as served." });
         }
@@ -288,6 +294,10 @@ namespace HiveQ.Controllers
 
             await _context.SaveChangesAsync();
 
+            // Notify all clients about queue update via SignalR
+            await _hubContext.Clients.Group($"Queue_{queue.QueueId}").SendAsync("QueueUpdated", queue.QueueId);
+            await _hubContext.Clients.Group("AllQueues").SendAsync("QueueUpdated", queue.QueueId);
+
             TempData["Message"] = "Queue updated successfully";
             return RedirectToAction("Index");
         }
@@ -337,17 +347,24 @@ namespace HiveQ.Controllers
                 );
 
                 // Send notification (SMS or Email depending on what's available)
-                await _smsService.SendNotificationAsync(
-                    calledEntry.UserId,
-                    calledEntry.QueueEntryId,
-                    "Called",
-                    message
-                );
+                if (_smsService != null)
+                {
+                    await _smsService.SendNotificationAsync(
+                        calledEntry.UserId,
+                        calledEntry.QueueEntryId,
+                        "Called",
+                        message
+                    );
 
-                _logger.LogInformation(
-                    "Notification sent successfully to UserId {UserId}",
-                    calledEntry.UserId
-                );
+                    _logger.LogInformation(
+                        "Notification sent successfully to UserId {UserId}",
+                        calledEntry.UserId
+                    );
+                }
+                else
+                {
+                    _logger.LogWarning("SMS service not configured. Notification not sent.");
+                }
             }
             catch (Exception ex)
             {
@@ -480,17 +497,24 @@ namespace HiveQ.Controllers
                     );
 
                     // Send SMS notification
-                    await _smsService.SendNotificationAsync(
-                        entry.UserId,
-                        entry.QueueEntryId,
-                        "QueueUpdate",
-                        message
-                    );
+                    if (_smsService != null)
+                    {
+                        await _smsService.SendNotificationAsync(
+                            entry.UserId,
+                            entry.QueueEntryId,
+                            "QueueUpdate",
+                            message
+                        );
 
-                    _logger.LogInformation(
-                        "SMS notification sent successfully to UserId {UserId}",
-                        entry.UserId
-                    );
+                        _logger.LogInformation(
+                            "SMS notification sent successfully to UserId {UserId}",
+                            entry.UserId
+                        );
+                    }
+                    else
+                    {
+                        _logger.LogWarning("SMS service not configured. Notification not sent to UserId {UserId}", entry.UserId);
+                    }
                 }
 
                 _logger.LogInformation(

@@ -1,7 +1,9 @@
-using HiveQ.Models;
-using HiveQ.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.SignalR;
+using HiveQ.Models;
+using HiveQ.Services;
+using HiveQ.Hubs;
 
 namespace HiveQ.Controllers
 {
@@ -9,11 +11,13 @@ namespace HiveQ.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly AuthenticationService _authService;
+        private readonly IHubContext<QueueHub> _hubContext;
 
-        public JoinQueueController(ApplicationDbContext context, AuthenticationService authService)
+        public JoinQueueController(ApplicationDbContext context, AuthenticationService authService, IHubContext<QueueHub> hubContext)
         {
             _context = context;
             _authService = authService;
+            _hubContext = hubContext;
         }
 
         // GET: JoinQueue?code={qrCodeData}
@@ -262,6 +266,10 @@ namespace HiveQ.Controllers
 
                 await _context.SaveChangesAsync();
 
+                // Notify all clients about queue update via SignalR
+                await _hubContext.Clients.Group($"Queue_{queue.QueueId}").SendAsync("QueueUpdated", queue.QueueId);
+                await _hubContext.Clients.Group("AllQueues").SendAsync("QueueUpdated", queue.QueueId);
+
                 // Redirect to position view
                 TempData["Message"] = "Successfully joined the queue!";
                 return RedirectToAction(
@@ -337,6 +345,7 @@ namespace HiveQ.Controllers
                     queueEntry.Status = "Cancelled";
                     queueEntry.Queue.CurrentQueueSize--;
                     queueEntry.Queue.UpdatedAt = DateTime.UtcNow;
+                    var queueId = queueEntry.QueueId;
 
                     // Auto-delete guest user if they have no other active queue entries
                     if (queueEntry.User != null && queueEntry.User.PasswordHash == "GUEST_USER")
@@ -354,6 +363,10 @@ namespace HiveQ.Controllers
                     }
 
                     await _context.SaveChangesAsync();
+
+                    // Notify all clients about queue update via SignalR
+                    await _hubContext.Clients.Group($"Queue_{queueId}").SendAsync("QueueUpdated", queueId);
+                    await _hubContext.Clients.Group("AllQueues").SendAsync("QueueUpdated", queueId);
 
                     TempData["Message"] = "You have successfully left the queue.";
                 }
@@ -480,6 +493,10 @@ namespace HiveQ.Controllers
                 queue.UpdatedAt = DateTime.UtcNow;
 
                 await _context.SaveChangesAsync();
+
+                // Notify all clients about queue update via SignalR
+                await _hubContext.Clients.Group($"Queue_{queue.QueueId}").SendAsync("QueueUpdated", queue.QueueId);
+                await _hubContext.Clients.Group("AllQueues").SendAsync("QueueUpdated", queue.QueueId);
 
                 // Redirect to position view
                 TempData["Message"] = "Successfully joined the queue!";
