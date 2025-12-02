@@ -7,9 +7,13 @@ namespace HiveQ.Models
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
-            // Enable WAL mode for better concurrency
-            Database.ExecuteSqlRaw("PRAGMA journal_mode=WAL;");
-            Database.ExecuteSqlRaw("PRAGMA busy_timeout=5000;");
+            // Only run SQLite-specific commands if we are actually using SQLite
+            if (Database.IsSqlite())
+            {
+                // Enable WAL mode for better concurrency
+                Database.ExecuteSqlRaw("PRAGMA journal_mode=WAL;");
+                Database.ExecuteSqlRaw("PRAGMA busy_timeout=5000;");
+            }
         }
 
         // DbSets for all entities
@@ -24,16 +28,12 @@ namespace HiveQ.Models
             base.OnModelCreating(modelBuilder);
 
             // Configure unique constraints
-            modelBuilder.Entity<User>()
-                .HasIndex(u => u.Email)
-                .IsUnique();
+            modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique();
 
-            modelBuilder.Entity<Queue>()
-                .HasIndex(q => q.QRCodeData)
-                .IsUnique();
+            modelBuilder.Entity<Queue>().HasIndex(q => q.QRCodeData).IsUnique();
 
             // Configure relationships
-            
+
             // User -> Queues (One-to-Many)
             // modelBuilder.Entity<Queue>()
             //     .HasOne(q => q.User)
@@ -42,49 +42,56 @@ namespace HiveQ.Models
             //     .OnDelete(DeleteBehavior.Cascade);
 
             // Queue -> QueueEntries (One-to-Many)
-            modelBuilder.Entity<QueueEntry>()
+            modelBuilder
+                .Entity<QueueEntry>()
                 .HasOne(qe => qe.Queue)
                 .WithMany(q => q.QueueEntries)
                 .HasForeignKey(qe => qe.QueueId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // User -> QueueEntries (One-to-Many)
-            modelBuilder.Entity<QueueEntry>()
+            modelBuilder
+                .Entity<QueueEntry>()
                 .HasOne(qe => qe.User)
                 .WithMany(u => u.QueueEntries)
                 .HasForeignKey(qe => qe.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             // QueueEntry -> Notifications (One-to-Many)
-            modelBuilder.Entity<Notification>()
+            modelBuilder
+                .Entity<Notification>()
                 .HasOne(n => n.QueueEntry)
                 .WithMany(qe => qe.Notifications)
                 .HasForeignKey(n => n.QueueEntryId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // User -> Notifications (One-to-Many)
-            modelBuilder.Entity<Notification>()
+            modelBuilder
+                .Entity<Notification>()
                 .HasOne(n => n.User)
                 .WithMany(u => u.Notifications)
                 .HasForeignKey(n => n.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             // QueueEntry -> QueueHistory (One-to-One)
-            modelBuilder.Entity<QueueHistory>()
+            modelBuilder
+                .Entity<QueueHistory>()
                 .HasOne(qh => qh.QueueEntry)
                 .WithOne(qe => qe.QueueHistory)
                 .HasForeignKey<QueueHistory>(qh => qh.QueueEntryId)
                 .OnDelete(DeleteBehavior.SetNull);
 
             // Queue -> QueueHistory (One-to-Many)
-            modelBuilder.Entity<QueueHistory>()
+            modelBuilder
+                .Entity<QueueHistory>()
                 .HasOne(qh => qh.Queue)
                 .WithMany(q => q.QueueHistories)
                 .HasForeignKey(qh => qh.QueueId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
 
             // User -> QueueHistory (One-to-Many)
-            modelBuilder.Entity<QueueHistory>()
+            modelBuilder
+                .Entity<QueueHistory>()
                 .HasOne(qh => qh.User)
                 .WithMany(u => u.QueueHistories)
                 .HasForeignKey(qh => qh.UserId)
@@ -100,50 +107,54 @@ namespace HiveQ.Models
             var seedDate = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
             // Seed a test user with company information
-            modelBuilder.Entity<User>().HasData(
-                new User
-                {
-                    UserId = 1,
-                    Email = "owner@coffeeshop.com",
-                    PasswordHash = "hashed_password_here", // In real app, use proper password hashing
-                    PhoneNumber = "5551234567",
-                    FirstName = "Sarah",
-                    LastName = "Johnson",
-                    CreatedAt = seedDate,
-                    IsActive = true
-                },
-                new User
-                {
-                    UserId = 2,
-                    Email = "customer@example.com",
-                    PasswordHash = "hashed_password_here",
-                    PhoneNumber = "5559876543",
-                    FirstName = "John",
-                    LastName = "Doe",
-                    CreatedAt = seedDate,
-                    IsActive = true
-                }
-            );
+            modelBuilder
+                .Entity<User>()
+                .HasData(
+                    new User
+                    {
+                        UserId = 1,
+                        Email = "owner@coffeeshop.com",
+                        PasswordHash = "hashed_password_here", // In real app, use proper password hashing
+                        PhoneNumber = "5551234567",
+                        FirstName = "Sarah",
+                        LastName = "Johnson",
+                        CreatedAt = seedDate,
+                        IsActive = true,
+                    },
+                    new User
+                    {
+                        UserId = 2,
+                        Email = "customer@example.com",
+                        PasswordHash = "hashed_password_here",
+                        PhoneNumber = "5559876543",
+                        FirstName = "John",
+                        LastName = "Doe",
+                        CreatedAt = seedDate,
+                        IsActive = true,
+                    }
+                );
 
             // Seed a test queue
-            modelBuilder.Entity<Queue>().HasData(
-                new Queue
-                {
-                    QueueId = 1,
-                    UserId = 1, // Created by Sarah (Coffee Shop owner)
-                    QueueName = "Morning Service",
-                    Description = "Main service queue for morning hours",
-                    QRCodeData = "HIVEQ_QUEUE_1",
-                    Status = "Active",
-                    MaxCapacity = 50,
-                    EstimatedWaitTimePerPerson = 5,
-                    CurrentQueueSize = 0,
-                    TotalServedToday = 0,
-                    CreatedAt = seedDate,
-                    UpdatedAt = seedDate,
-                    IsActive = true
-                }
-            );
+            modelBuilder
+                .Entity<Queue>()
+                .HasData(
+                    new Queue
+                    {
+                        QueueId = 1,
+                        UserId = 1, // Created by Sarah (Coffee Shop owner)
+                        QueueName = "Morning Service",
+                        Description = "Main service queue for morning hours",
+                        QRCodeData = "HIVEQ_QUEUE_1",
+                        Status = "Active",
+                        MaxCapacity = 50,
+                        EstimatedWaitTimePerPerson = 5,
+                        CurrentQueueSize = 0,
+                        TotalServedToday = 0,
+                        CreatedAt = seedDate,
+                        UpdatedAt = seedDate,
+                        IsActive = true,
+                    }
+                );
         }
     }
 }

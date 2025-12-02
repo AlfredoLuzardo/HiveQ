@@ -1,8 +1,8 @@
+using System.Diagnostics;
+using HiveQ.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using HiveQ.Models;
-using System.Diagnostics;
-using Microsoft.AspNetCore.Authorization;
 
 namespace HiveQ.Controllers
 {
@@ -14,7 +14,7 @@ namespace HiveQ.Controllers
         {
             _context = context;
         }
-            
+
         /// <summary>
         /// GET: Home/Index
         /// </summary>
@@ -22,8 +22,8 @@ namespace HiveQ.Controllers
         [Authorize]
         public async Task<IActionResult> Index()
         {
-            var queues = await _context.Queues
-                .Where(q => q.IsActive && q.Status != "Closed")
+            var queues = await _context
+                .Queues.Where(q => q.IsActive && q.Status != "Closed")
                 .Include(q => q.User)
                 .OrderByDescending(q => q.CreatedAt)
                 .ToListAsync();
@@ -57,7 +57,7 @@ namespace HiveQ.Controllers
         }
 
         /// <summary>
-        /// POST: Home/LeaveQueue        
+        /// POST: Home/LeaveQueue
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -77,7 +77,12 @@ namespace HiveQ.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return View(
+                new ErrorViewModel
+                {
+                    RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier,
+                }
+            );
         }
     }
 }

@@ -1,4 +1,4 @@
-@model dynamic
+@model HiveQ.Models.User
 
 @{
     ViewData["Title"] = "My Profile";
@@ -9,6 +9,22 @@
         <h1>My Profile</h1>
         <p class="lead">Manage your account settings</p>
 
+        @if (TempData["Message"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                @TempData["Message"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @TempData["Error"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
         <!-- Profile Picture Section -->
         <div class="card mt-4">
             <div class="card-header">
@@ -16,7 +32,21 @@
             </div>
             <div class="card-body text-center">
                 <div class="mb-3">
-                    <img src="https://via.placeholder.com/150" alt="Profile Picture" class="rounded-circle" style="width: 150px; height: 150px; object-fit: cover;" />
+                    @if (Model.ProfilePicture != null && Model.ProfilePictureContentType != null)
+                    {
+                        <img src="@Url.Action("GetProfilePicture", "Profile", new { userId = Model.UserId })" 
+                             alt="Profile Picture" 
+                             class="rounded-circle" 
+                             style="width: 150px; height: 150px; object-fit: cover;" />
+                    }
+                    else
+                    {
+                        var initials = $"{Model.FirstName?.FirstOrDefault()}{Model.LastName?.FirstOrDefault()}".ToUpper();
+                        <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center" 
+                             style="width: 150px; height: 150px; font-size: 48px; font-weight: bold;">
+                            @initials
+                        </div>
+                    }
                 </div>
                 <form method="post" asp-controller="Profile" asp-action="SubmitProfilePic" enctype="multipart/form-data">
                     <div class="mb-3">
@@ -35,17 +65,37 @@
             <div class="card-body">
                 <div class="mb-3">
                     <label class="form-label"><strong>Name:</strong></label>
-                    <p>John Doe</p>
+                    <p>@Model.FirstName @Model.LastName</p>
                 </div>
                 <div class="mb-3">
                     <label class="form-label"><strong>Email:</strong></label>
-                    <p>john.doe@example.com</p>
+                    <p>@Model.Email</p>
                 </div>
+                @if (!string.IsNullOrEmpty(Model.PhoneNumber))
+                {
+                    <div class="mb-3">
+                        <label class="form-label"><strong>Phone Number:</strong></label>
+                        <p>@Model.PhoneNumber</p>
+                    </div>
+                }
                 <div class="mb-3">
                     <label class="form-label"><strong>Member Since:</strong></label>
-                    <p>January 15, 2024</p>
+                    <p>@Model.CreatedAt.ToLocalTime().ToString("MMMM dd, yyyy")</p>
                 </div>
-                <button type="button" class="btn btn-outline-primary">Edit Profile</button>
+                <div class="mb-3">
+                    <label class="form-label"><strong>Account Type:</strong></label>
+                    <p>
+                        @if (Model.PasswordHash == "GUEST_USER")
+                        {
+                            <span class="badge bg-secondary">Guest User</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-success">Registered User</span>
+                        }
+                    </p>
+                </div>
+                <button type="button" class="btn btn-outline-primary" disabled>Edit Profile (Coming Soon)</button>
             </div>
         </div>
 

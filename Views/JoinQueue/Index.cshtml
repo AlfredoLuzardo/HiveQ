@@ -46,7 +46,16 @@
 
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title mb-4">Enter Your Information</h5>
+                <h5 class="card-title mb-4">
+                    @if (ViewBag.IsAuthenticated == true)
+                    {
+                        <text>Confirm Your Information</text>
+                    }
+                    else
+                    {
+                        <text>Enter Your Information</text>
+                    }
+                </h5>
                 
                 <form method="post" asp-controller="JoinQueue" asp-action="Join">
                     <input type="hidden" name="queueId" value="@ViewBag.QueueId" />
@@ -54,23 +63,46 @@
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label for="firstName" class="form-label">First Name *</label>
-                            <input type="text" class="form-control" id="firstName" name="firstName" required />
+                            <input type="text" class="form-control" id="firstName" name="firstName" 
+                                   value="@ViewBag.UserFirstName" 
+                                   readonly="@(ViewBag.IsAuthenticated == true)" 
+                                   required />
                         </div>
                         <div class="col-md-6">
                             <label for="lastName" class="form-label">Last Name *</label>
-                            <input type="text" class="form-control" id="lastName" name="lastName" required />
+                            <input type="text" class="form-control" id="lastName" name="lastName" 
+                                   value="@ViewBag.UserLastName" 
+                                   readonly="@(ViewBag.IsAuthenticated == true)" 
+                                   required />
                         </div>
                     </div>
 
                     <div class="mb-3">
+                        <label for="partySize" class="form-label">Party Size *</label>
+                        <select class="form-select" id="partySize" name="partySize" required>
+                            @for (int i = 1; i <= ViewBag.MaxPartySize; i++)
+                            {
+                                <option value="@i" selected="@(i == 1)">@i @(i == 1 ? "person" : "people")</option>
+                            }
+                        </select>
+                        <div class="form-text">How many people are in your party?</div>
+                    </div>
+
+                    <div class="mb-3">
                         <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" placeholder="your@email.com" />
+                        <input type="email" class="form-control" id="email" name="email" 
+                               value="@ViewBag.UserEmail" 
+                               readonly="@(ViewBag.IsAuthenticated == true)" 
+                               placeholder="your@email.com" />
                         <div class="form-text">Optional - For email notifications</div>
                     </div>
 
                     <div class="mb-3">
                         <label for="phoneNumber" class="form-label">Phone Number</label>
-                        <input type="tel" class="form-control" id="phoneNumber" name="phoneNumber" placeholder="(555) 123-4567" />
+                        <input type="tel" class="form-control" id="phoneNumber" name="phoneNumber" 
+                               value="@ViewBag.UserPhone" 
+                               readonly="@(ViewBag.IsAuthenticated == true)" 
+                               placeholder="(555) 123-4567" />
                         <div class="form-text">Optional - For SMS notifications</div>
                     </div>
 

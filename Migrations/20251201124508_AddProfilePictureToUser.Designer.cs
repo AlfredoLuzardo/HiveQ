@@ -3,6 +3,7 @@ using System;
 using HiveQ.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HiveQ.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251201124508_AddProfilePictureToUser")]
+    partial class AddProfilePictureToUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
@@ -87,9 +90,6 @@ namespace HiveQ.Migrations
                     b.Property<int>("MaxCapacity")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("MaxPartySize")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("QRCodeData")
                         .IsRequired()
                         .HasMaxLength(500)
@@ -137,7 +137,6 @@ namespace HiveQ.Migrations
                             EstimatedWaitTimePerPerson = 5,
                             IsActive = true,
                             MaxCapacity = 50,
-                            MaxPartySize = 1,
                             QRCodeData = "HIVEQ_QUEUE_1",
                             QueueName = "Morning Service",
                             Status = "Active",
@@ -169,9 +168,6 @@ namespace HiveQ.Migrations
 
                     b.Property<DateTime?>("NotifiedAt")
                         .HasColumnType("TEXT");
-
-                    b.Property<int>("PartySize")
-                        .HasColumnType("INTEGER");
 
                     b.Property<int>("PositionNumber")
                         .HasColumnType("INTEGER");
@@ -377,7 +373,7 @@ namespace HiveQ.Migrations
                     b.HasOne("HiveQ.Models.Queue", "Queue")
                         .WithMany("QueueHistories")
                         .HasForeignKey("QueueId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("HiveQ.Models.User", "User")

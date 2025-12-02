@@ -41,7 +41,7 @@
                         <div class="col-md-6 mb-3">
                             <label for="maxCapacity" class="form-label">Maximum Capacity</label>
                             <input type="number" class="form-control" id="maxCapacity" name="maxCapacity" placeholder="e.g., 20" />
-                            <div class="form-text">Max number of people allowed in queue (optional)</div>
+                            <div class="form-text">Max number of positions in queue (optional)</div>
                         </div>
 
                         <div class="col-md-6 mb-3">
@@ -49,6 +49,12 @@
                             <input type="number" class="form-control" id="estimatedTime" name="estimatedTime" value="5" required />
                             <div class="form-text">Average time to serve one customer</div>
                         </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="maxPartySize" class="form-label">Maximum Party Size *</label>
+                        <input type="number" class="form-control" id="maxPartySize" name="maxPartySize" value="1" min="1" max="50" required />
+                        <div class="form-text">How many people can be in one party/group (e.g., for restaurant seating: 1-8 people per table)</div>
                     </div>
 
                     <div class="mb-3">
